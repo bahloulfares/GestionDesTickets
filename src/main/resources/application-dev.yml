@@ -1,0 +1,92 @@
+management:
+    security:
+        enabled: false
+    metrics.binders.hystrix.enabled: false
+security:
+    basic:
+        enabled: false
+spring:
+    application:
+        name: template-core
+    mvc:
+        pathmatch:
+            matching-strategy: ant_path_matcher
+    jackson:
+        serialization:
+            write-dates-as-timestamps: true
+    liquibase:
+        default-schema: dbo
+        enabled: false 
+    output:
+        ansi:
+            enabled: ALWAYS
+  
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: true
+    datasource:
+        url: jdbc:sqlserver://localhost\SQL2019;databaseName=basededonner
+        username: sa
+        password: 123
+        
+
+    jpa:
+        database-platform: org.hibernate.dialect.SQLServer2012Dialect
+        database: SQL_SERVER
+        open-in-view: false
+        show-sql: true
+        hibernate:
+            ddl-auto: update
+            #            ddl-auto: create
+            naming:
+                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+                physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        properties:
+            hibernate.default_schema: dbo
+            hibernate.id.new_generator_mappings: true
+            hibernate.cache.use_second_level_cache: false
+            hibernate.cache.use_query_cache: false
+            hibernate.generate_statistics: false
+            hibernate.cache.region.factory_class: com.hazelcast.hibernate.HazelcastCacheRegionFactory
+            hibernate.cache.hazelcast.instance_name: hazelcast
+            hibernate.cache.use_minimal_puts: true
+            hibernate.cache.hazelcast.use_lite_member: true
+            org.hibernate.envers.store_data_at_delete: true
+    mail:
+        username: 
+        password: 
+        host: 
+        port: 465
+        properties:
+            mail:
+                smtp:
+                    connectiontimeout: 3000
+                    auth: false
+                    starttls:
+                        enable: true
+                        
+    config:
+        use-legacy-processing: true
+lang:
+    secondary: ar
+
+server:
+#    servlet:
+#        contextPath: /dev
+    port: 9500
+    compression:
+        enabled: true
+        mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+        min-response-size: 1024
+
+
+hystrix:
+    command.default.execution.isolation.strategy: THREAD
+
+email:
+    from: bahloulfares100@gmail.com
+    to: bahloulfares3@gmail.com
+
+
