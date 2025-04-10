@@ -27,7 +27,7 @@ spring:
         livereload:
             enabled: true
     datasource:
-        url: jdbc:sqlserver://localhost\SQL2019;databaseName=basededonner
+        url: jdbc:sqlserver://localhost\SQL2019;databaseName=GestionDemande
         username: sa
         password: 123
         
@@ -73,8 +73,8 @@ lang:
     secondary: ar
 
 server:
-#    servlet:
-#        contextPath: /dev
+    servlet:
+        contextPath: /template-core
     port: 9500
     compression:
         enabled: true
