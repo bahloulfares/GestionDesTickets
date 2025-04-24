@@ -5,60 +5,67 @@
 package com.csys.template.domain;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
 /**
  *
  * @author Admin
  */
 @Entity
-@Table(name = "Module")
+@Table(name = "Poste")
 @NamedQueries({
-    @NamedQuery(name = "Module.findAll", query = "SELECT m FROM Module m")})
-public class Module implements Serializable {
+    @NamedQuery(name = "Poste.findAll", query = "SELECT p FROM Poste p")})
+public class Poste implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @Column(name = "id_poste")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id_module")
-    private Integer idModule;
+    private Integer idPoste;
+    
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
     @Column(name = "designation")
     private String designation;
+    
     @Column(name = "actif")
     private Boolean actif;
+    
+    @OneToMany(mappedBy = "poste")
+    private List<User> users;
 
-    public Module() {
+    public Poste() {
     }
 
-    public Module(Integer idModule) {
-        this.idModule = idModule;
+    public Poste(Integer idPoste) {
+        this.idPoste = idPoste;
     }
 
-    public Module(Integer idModule, String designation) {
-        this.idModule = idModule;
+    public Poste(Integer idPoste, String designation) {
+        this.idPoste = idPoste;
         this.designation = designation;
     }
 
-    public Integer getIdModule() {
-        return idModule;
+    public Integer getIdPoste() {
+        return idPoste;
     }
 
-    public void setIdModule(Integer idModule) {
-        this.idModule = idModule;
+    public void setIdPoste(Integer idPoste) {
+        this.idPoste = idPoste;
     }
 
     public String getDesignation() {
@@ -76,27 +83,39 @@ public class Module implements Serializable {
     public void setActif(Boolean actif) {
         this.actif = actif;
     }
+    
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (idModule != null ? idModule.hashCode() : 0);
+        hash += (idPoste != null ? idPoste.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Module)) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        Module other = (Module) object;
-        return !((this.idModule == null && other.idModule != null) || (this.idModule != null && !this.idModule.equals(other.idModule)));
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Poste other = (Poste) obj;
+        return Objects.equals(this.idPoste, other.idPoste);
     }
 
     @Override
     public String toString() {
-        return "com.csys.template.domain.Module[ idModule=" + idModule + " ]";
+        return "Poste [idPoste=" + idPoste + ", designation=" + designation + ", actif=" + actif + "]";
     }
-    
 }

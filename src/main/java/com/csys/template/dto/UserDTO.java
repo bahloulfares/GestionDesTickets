@@ -5,6 +5,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.csys.template.domain.enums.Role;
+
 public class UserDTO {
   @NotNull
   @Size(
@@ -26,9 +28,18 @@ public class UserDTO {
   )
   private String description;
 
-  private List mvtConsigneList;
+  // private List mvtConsigneList;
 
-  private List mvtConsigneList1;
+  // private List mvtConsigneList1;
+
+  private String nom;
+  private String prenom;
+  private Role role;
+  private Integer idPoste;
+  private Integer idEquipe;
+  //private String equipeDesignation;
+  private Boolean actif;
+  //private String posteDesignation;
 
   public String getUsername() {
     return username;
@@ -54,20 +65,68 @@ public class UserDTO {
     this.description = description;
   }
 
-  public List getMvtConsigneList() {
-    return mvtConsigneList;
+  public String getNom() {
+      return nom;
   }
 
-  public void setMvtConsigneList(List mvtConsigneList) {
-    this.mvtConsigneList = mvtConsigneList;
+  public void setNom(String nom) {
+      this.nom = nom;
   }
 
-  public List getMvtConsigneList1() {
-    return mvtConsigneList1;
+  public String getPrenom() {
+      return prenom;
   }
 
-  public void setMvtConsigneList1(List mvtConsigneList1) {
-    this.mvtConsigneList1 = mvtConsigneList1;
+  public void setPrenom(String prenom) {
+      this.prenom = prenom;
   }
+
+  public Role getRole() {
+      return role;
+  }
+
+  public void setRole(Role role) {
+      this.role = role;
+  }
+
+  public Integer getIdPoste() {
+      return idPoste;
+  }
+
+  public void setIdPoste(Integer idPoste) {
+      this.idPoste = idPoste;
+  }
+
+  public Integer getIdEquipe() {
+      return idEquipe;
+  }
+
+  public void setIdEquipe(Integer idEquipe) {
+      this.idEquipe = idEquipe;
+  }
+
+//  public String getEquipeDesignation() {
+//      return equipeDesignation;
+//  }
+//
+//  public void setEquipeDesignation(String equipeDesignation) {
+//      this.equipeDesignation = equipeDesignation;
+//  }
+
+  public Boolean getActif() {
+      return actif;
+  }
+
+  public void setActif(Boolean actif) {
+      this.actif = actif;
+  }
+  
+//  public String getPosteDesignation() {
+//      return posteDesignation;
+//  }
+//
+//  public void setPosteDesignation(String posteDesignation) {
+//      this.posteDesignation = posteDesignation;
+//  }
 }
 

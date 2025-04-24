@@ -36,6 +36,7 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
@@ -58,6 +59,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    //     auth.inMemoryAuthentication().withUser("ram").password("ram123").authorities("Banques", "test");
    //     auth.inMemoryAuthentication().withUser("nihel").password("123").authorities("z");
           //auth.inMemoryAuthentication().withUser("fares").password("123").authorities("USER");
+//          auth.userDetailsService(userDetailsService)
+//    .passwordEncoder(new BCryptPasswordEncoder());
+
     }
 
     @Override
@@ -66,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                 Authentication authentication) throws IOException, ServletException {
-                response.setContentType("text/html");
+                response.setContentType("text/plain");
                 String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
                 response.getWriter().print(sessionId);
             }
@@ -98,12 +102,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // Remplacer "*" par les origines spécifiques
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+        // Ou utilisez setAllowedOriginPatterns si vous avez Spring Security 5.3+
+        // configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+        // Permettre les cookies et les credentials
+        configuration.setAllowCredentials(true);
 
-UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

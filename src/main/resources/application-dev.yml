@@ -82,8 +82,8 @@ server:
         min-response-size: 1024
 
 
-hystrix:
-    command.default.execution.isolation.strategy: THREAD
+# hystrix:
+#     command.default.execution.isolation.strategy: THREAD
 
 email:
     from: bahloulfares100@gmail.com

@@ -1,10 +1,8 @@
-package com.csys.template.ressources;
+package com.csys.template.web.rest;
 
 import com.csys.template.dto.UserDTO;
 import com.csys.template.service.UserService;
 import com.csys.template.util.RestPreconditions;
-import java.lang.String;
-import java.lang.Void;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
