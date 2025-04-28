@@ -5,6 +5,7 @@
 package com.csys.template.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -27,17 +29,20 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Module.findAll", query = "SELECT m FROM Module m")})
 public class Module implements Serializable {
 
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "designation")
+    private String designation;
+    @OneToMany(mappedBy = "module")
+    private List<Demande> demandeList;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id_module")
     private Integer idModule;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "designation")
-    private String designation;
     @Column(name = "actif")
     private Boolean actif;
 
@@ -61,13 +66,6 @@ public class Module implements Serializable {
         this.idModule = idModule;
     }
 
-    public String getDesignation() {
-        return designation;
-    }
-
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
 
     public Boolean getActif() {
         return actif;
@@ -97,6 +95,22 @@ public class Module implements Serializable {
     @Override
     public String toString() {
         return "com.csys.template.domain.Module[ idModule=" + idModule + " ]";
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public List<Demande> getDemandeList() {
+        return demandeList;
+    }
+
+    public void setDemandeList(List<Demande> demandeList) {
+        this.demandeList = demandeList;
     }
     
 }

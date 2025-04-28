@@ -34,17 +34,21 @@ public class DomainUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String login) {
-//        final User.UserBuilder userBuilder = User.builder().passwordEncoder(encoder::encode);
         log.error("Authenticating {}", login);
         String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
         Optional<User> userFromDatabase = userRepository
                 .findOneByUsername(lowercaseLogin);
 
         return userFromDatabase.map(user -> {
-            String mdpe = new BCryptPasswordEncoder().encode(user.getPassword().toLowerCase(Locale.ENGLISH));
+            String password = user.getPassword();
+            // Vérifier si le mot de passe est déjà crypté
+            if (!password.startsWith("{bcrypt}")) {
+                // Si le mot de passe n'est pas encore crypté, on le crypte pour cette session
+                password = "{bcrypt}" + new BCryptPasswordEncoder().encode(password.toLowerCase(Locale.ENGLISH));
+            }
+            
             List<GrantedAuthority> grantedAuthorities = java.util.Arrays.asList(new SimpleGrantedAuthority("template-core"));
-            return new org.springframework.security.core.userdetails.User(lowercaseLogin,"{bcrypt}"+mdpe,
-                    grantedAuthorities);
+            return new org.springframework.security.core.userdetails.User(lowercaseLogin, password, grantedAuthorities);
         }).orElseThrow(
                 () -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " + "database"));
     }

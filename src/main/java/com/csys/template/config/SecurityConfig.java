@@ -102,10 +102,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Remplacer "*" par les origines spécifiques
+        //origines spécifiques
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
-        // Ou utilisez setAllowedOriginPatterns si vous avez Spring Security 5.3+
-        // configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));

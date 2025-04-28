@@ -4,6 +4,7 @@ import com.csys.template.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * Spring Data JPA repository for the User entity.
@@ -19,5 +20,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 //    List<User> findByRole(String role);
 //    List<User> findByPoste_IdPoste(Integer idPoste);
 //    List<User> findByActif(Boolean actif);
+// Ajoutez cette méthode à votre interface UserRepository
+    List<User> findByEquipeIdEquipe(Integer idEquipe);
 }
 

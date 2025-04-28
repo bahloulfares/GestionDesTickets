@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
+//import com.csys.template.service.PasswordService;
+import com.csys.template.web.rest.errors.IllegalBusinessLogiqueException;
+import com.csys.template.web.rest.errors.MyResourceNotFoundException;
 /**
  * Service Implementation for managing User.
  */
@@ -23,10 +26,13 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PosteRepository posteRepository;
+  //private PasswordService passwordService;
+
 
   public UserService(UserRepository userRepository, PosteRepository posteRepository) {
     this.userRepository=userRepository;
     this.posteRepository=posteRepository;
+    //this.passwordService = passwordService;
   }
 
   /**
@@ -35,12 +41,22 @@ public class UserService {
    * @param userDTO
    * @return the persisted entity
    */
+  // @Autowired
+  // private PasswordService passwordService;
+  
+  // Dans la méthode save ou create
   public UserDTO save(UserDTO userDTO) {
-    log.debug("Request to save User: {}",userDTO);
-    User user = UserFactory.userDTOToUser(userDTO);
-    user = userRepository.save(user);
-    UserDTO resultDTO = UserFactory.userToUserDTO(user);
-    return resultDTO;
+      log.debug("Request to save User: {}",userDTO);
+      
+      // Crypter le mot de passe avant de sauvegarder
+      // if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+      //     userDTO.setPassword(passwordService.encryptPassword(userDTO.getPassword()));
+      // }
+      
+      User user = UserFactory.userDTOToUser(userDTO);
+      user = userRepository.save(user);
+      UserDTO resultDTO = UserFactory.userToUserDTO(user);
+      return resultDTO;
   }
 
   /**
@@ -60,6 +76,8 @@ public class UserService {
           posteRepository.findById(userDTO.getIdPoste())
               .orElseThrow(() -> new IllegalArgumentException("Poste not found with id " + userDTO.getIdPoste()));
       }
+      
+    
       
       User user = UserFactory.userDTOToUser(userDTO);
       user = userRepository.save(user);
@@ -129,8 +147,23 @@ public class UserService {
    * @param id the id of the entity
    */
   public void delete(String id) {
-    log.debug("Request to delete User: {}",id);
-    userRepository.deleteById(id);
+    log.debug("Request to delete User: {}", id);
+    
+    // Get the user to check if it's assigned to a team
+    User user = userRepository.findById(id).orElse(null);
+    if (user != null) {
+      // Check if the user is assigned to a team
+      if (user.getEquipe() != null) {
+        throw new IllegalBusinessLogiqueException("user.assigned.to.team", 
+            new Throwable("User " + id + " is assigned to team " + user.getEquipe().getDesignation() + 
+            ". Please remove the user from the team before deletion."));
+      }
+      
+      userRepository.deleteById(id);
+    } else {
+      // User not found, throw exception
+      throw new MyResourceNotFoundException("user.NotFound");
+    }
   }
 
   @Transactional(readOnly = true)

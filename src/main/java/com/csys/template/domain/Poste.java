@@ -30,17 +30,18 @@ import javax.persistence.GenerationType;
     @NamedQuery(name = "Poste.findAll", query = "SELECT p FROM Poste p")})
 public class Poste implements Serializable {
 
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "designation")
+    private String designation;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Column(name = "id_poste")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPoste;
     
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "designation")
-    private String designation;
     
     @Column(name = "actif")
     private Boolean actif;
@@ -68,13 +69,6 @@ public class Poste implements Serializable {
         this.idPoste = idPoste;
     }
 
-    public String getDesignation() {
-        return designation;
-    }
-
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
 
     public Boolean getActif() {
         return actif;
@@ -118,4 +112,13 @@ public class Poste implements Serializable {
     public String toString() {
         return "Poste [idPoste=" + idPoste + ", designation=" + designation + ", actif=" + actif + "]";
     }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
 }

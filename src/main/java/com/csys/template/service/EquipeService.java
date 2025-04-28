@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.csys.template.repository.UserRepository;
 import com.csys.template.domain.User;
 import com.csys.template.web.rest.errors.IllegalBusinessLogiqueException;
+import java.util.ArrayList;
 
 /**
  * Service Implementation for managing Equipe.
@@ -79,36 +80,44 @@ public class EquipeService {
     log.debug("Request to update Equipe: {}", equipeDTO);
     Equipe inBase = equipeRepository.findById(equipeDTO.getIdEquipe()).orElse(null);
     Preconditions.checkArgument(inBase != null, "equipe.NotFound");
-    
+
+    // Convertir EquipeDTO en Equipe pour obtenir les utilisateurs
     Equipe equipe = EquipeFactory.equipeDTOToEquipe(equipeDTO);
     
-    // Gérer les utilisateurs avant de sauvegarder l'équipe
-    if (equipe.getUsers() != null && !equipe.getUsers().isEmpty()) {
-        for (User user : equipe.getUsers()) {
-            if (user.getUsername() != null) {
-                User existingUser = userRepository.findById(user.getUsername()).orElse(null);
-                
-                if (existingUser != null && existingUser.getEquipe() != null 
-                    && !existingUser.getEquipe().getIdEquipe().equals(equipeDTO.getIdEquipe())) {
-                    // Permettre le changement d'équipe en détachant l'utilisateur de son ancienne équipe
-                    log.debug("Changing user {} from team {} to team {}", 
-                             existingUser.getUsername(), 
-                             existingUser.getEquipe().getIdEquipe(), 
-                             equipeDTO.getIdEquipe());
-                    
-                    existingUser.setEquipe(null);
-                    userRepository.save(existingUser);
-                }
-                
-                // Mettre à jour l'équipe de l'utilisateur
-                user.setEquipe(equipe);
-                userRepository.save(user); // Sauvegarder explicitement l'utilisateur avec sa nouvelle équipe
+    // Liste des utilisateurs dans la nouvelle équipe
+    List<User> newUsers = equipe.getUsers() != null ? equipe.getUsers() : new ArrayList<>();
+
+    // Liste des utilisateurs actuellement affectés à cette équipe
+    List<User> currentUsers = userRepository.findByEquipeIdEquipe(equipeDTO.getIdEquipe());
+
+    // Supprimer ceux qui ne sont plus présents
+    for (User oldUser : currentUsers) {
+        boolean stillExists = newUsers.stream()
+            .anyMatch(newUser -> newUser.getUsername().equals(oldUser.getUsername()));
+        if (!stillExists) {
+            log.debug("Détachement de l'utilisateur {}", oldUser.getUsername());
+            oldUser.setEquipe(null);
+            userRepository.save(oldUser);
+        }
+    }
+
+    // Réaffecter les nouveaux utilisateurs
+    for (User user : newUsers) {
+        if (user.getUsername() != null) {
+            User existingUser = userRepository.findById(user.getUsername()).orElse(null);
+            if (existingUser != null) {
+                existingUser.setEquipe(inBase);
+                userRepository.save(existingUser);
             }
         }
     }
-    
-    equipe = equipeRepository.save(equipe);
-    return EquipeFactory.equipeToEquipeDTO(equipe);
+
+    // Mettre à jour les champs de l'équipe elle-même
+    inBase.setDesignation(equipeDTO.getDesignation());
+    inBase.setActif(equipeDTO.getActif());
+    equipeRepository.save(inBase);
+
+    return EquipeFactory.equipeToEquipeDTO(inBase);
 }
 
   /**
@@ -162,8 +171,26 @@ public class EquipeService {
    * @param id the id of the entity
    */
   public void delete(Integer id) {
-    log.debug("Request to delete Equipe: {}",id);
-    equipeRepository.deleteById(id);
+      log.debug("Request to delete Equipe: {}", id);
+      
+      // Récupérer l'équipe avec ses utilisateurs
+      Equipe equipe = equipeRepository.findById(id).orElse(null);
+      if (equipe == null) {
+          throw new IllegalBusinessLogiqueException("equipe.NotFound");
+      }
+      
+      // Détacher tous les utilisateurs de l'équipe avant de la supprimer
+      if (equipe.getUsers() != null && !equipe.getUsers().isEmpty()) {
+          log.debug("Detaching {} users from team before deletion", equipe.getUsers().size());
+          
+          for (User user : equipe.getUsers()) {
+              user.setEquipe(null);
+          }
+          userRepository.saveAll(equipe.getUsers());
+      }
+      
+      // Maintenant supprimer l'équipe
+      equipeRepository.deleteById(id);
   }
 }
 

@@ -7,6 +7,8 @@
     <class>com.csys.template.domain.Client</class>
     <class>com.csys.template.domain.Poste</class>
     <class>com.csys.template.domain.Equipe</class>
+    <class>com.csys.template.domain.User_1</class>
+    <class>com.csys.template.domain.Demande</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://10.12.12.10:1420;databaseName=gcliniquenew"/>
       <property name="javax.persistence.jdbc.user" value="sa"/>

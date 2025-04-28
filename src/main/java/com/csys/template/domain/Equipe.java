@@ -29,17 +29,20 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Equipe.findAll", query = "SELECT e FROM Equipe e")})
 public class Equipe implements Serializable {
 
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "designation")
+    private String designation;
+    @OneToMany(mappedBy = "equipe")
+    private List<Demande> demandeList;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_equipe")
     private Integer idEquipe;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "designation")
-    private String designation;
     @OneToMany(mappedBy = "equipe")
     private List<User> users;
 
@@ -74,13 +77,6 @@ public class Equipe implements Serializable {
         this.idEquipe = idEquipe;
     }
 
-    public String getDesignation() {
-        return designation;
-    }
-
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
 
     public Boolean getActif() {
         return actif;
@@ -113,6 +109,22 @@ public class Equipe implements Serializable {
     @Override
     public String toString() {
         return "com.csys.template.domain.Equipe[ idEquipe=" + idEquipe + " ]";
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public List<Demande> getDemandeList() {
+        return demandeList;
+    }
+
+    public void setDemandeList(List<Demande> demandeList) {
+        this.demandeList = demandeList;
     }
     
 }

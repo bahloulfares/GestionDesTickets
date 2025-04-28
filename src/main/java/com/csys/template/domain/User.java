@@ -17,8 +17,11 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import com.csys.template.domain.enums.Role;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -37,10 +40,11 @@ public class User implements Serializable {
     @Size(min = 1, max = 50)
     @Column(name = "username")
     private String username;
+    
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 15)
-    @Column(name = "password")
+    @Size(min = 1, max = 100) // Augmenter la taille maximale à 100 caractères
+    @Column(name = "password", length = 100) // Modifier également la longueur de la colonne
     private String password;
     @Size(max = 50)
     @Column(name = "description")
@@ -58,7 +62,8 @@ public class User implements Serializable {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Demande> demandeList;
     @ManyToOne
     @JoinColumn(name = "id_poste", referencedColumnName = "id_poste")
     private Poste poste;
@@ -131,6 +136,14 @@ public class User implements Serializable {
         this.role = role;
     }
 
+    public List<Demande> getDemandeList() {
+        return demandeList;
+    }
+
+    public void setDemandeList(List<Demande> demandeList) {
+        this.demandeList = demandeList;
+    }
+    
     public Poste getPoste() {
         return poste;
     }

@@ -5,6 +5,7 @@
 package com.csys.template.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -27,19 +29,11 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Client.findAll", query = "SELECT c FROM Client c")})
 public class Client implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id_client")
-    private Integer idClient;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
     @Column(name = "nom")
     private String nom;
-    @Column(name = "telephone")
-    private Integer telephone;
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Basic(optional = false)
     @NotNull
@@ -49,6 +43,17 @@ public class Client implements Serializable {
     @Size(max = 255)
     @Column(name = "adresse")
     private String adresse;
+    @OneToMany(mappedBy = "client")
+    private List<Demande> demandeList;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id_client")
+    private Integer idClient;
+    @Column(name = "telephone")
+    private Integer telephone;
 
     public Client() {
     }
@@ -71,13 +76,6 @@ public class Client implements Serializable {
         this.idClient = idClient;
     }
 
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
 
     public Integer getTelephone() {
         return telephone;
@@ -87,21 +85,6 @@ public class Client implements Serializable {
         this.telephone = telephone;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
-    }
 
     @Override
     public int hashCode() {
@@ -126,6 +109,38 @@ public class Client implements Serializable {
     @Override
     public String toString() {
         return "com.csys.template.domain.Client[ idClient=" + idClient + " ]";
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public List<Demande> getDemandeList() {
+        return demandeList;
+    }
+
+    public void setDemandeList(List<Demande> demandeList) {
+        this.demandeList = demandeList;
     }
     
 }

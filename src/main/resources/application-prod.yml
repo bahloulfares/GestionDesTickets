@@ -62,10 +62,14 @@ lang:
     secondary: ar
 
      
-server:
+#server:
 #    servlet:
 #        contextPath: /prod
-    port: 9800
+#    port: 9800
+server:
+    servlet:
+        contextPath: /template-core
+    port: 9500
     compression:
         enabled: true
         mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
