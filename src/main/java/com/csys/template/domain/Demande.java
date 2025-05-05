@@ -1,99 +1,106 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.csys.template.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.csys.template.domain.enums.EtatDemande;
+import com.csys.template.domain.enums.PrioriteDemande;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 
-/**
- *
- * @author Admin
- */
 @Entity
 @Table(name = "Demande")
-@NamedQueries({
-    @NamedQuery(name = "Demande.findAll", query = "SELECT d FROM Demande d")})
 public class Demande implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @NotNull
     @Column(name = "idDemande")
     private Integer idDemande;
-    @Basic(optional = false)
+
     @NotNull
-    @Column(name = "date_creation")
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_creation", nullable = false)
     private Date dateCreation;
+
+    @NotNull
     @Size(max = 500)
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
+
+    
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_affectation_equipe")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date dateAffectationEquipe;
+
+    
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_affectation_collaborateur")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date dateAffectationCollaborateur;
-    @Basic(optional = false)
+
     @NotNull
-    @Size(min = 1, max = 30)
-    @Column(name = "etat")
-    private String etat;
-    @Basic(optional = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "etat", nullable = false, length = 30)
+    private EtatDemande etat;
+
     @NotNull
-    @Size(min = 1, max = 20)
-    @Column(name = "priorite")
-    private String priorite;
-    @Column(name = "date_echeance")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priorite", nullable = false, length = 20)
+    private PrioriteDemande priorite;
+
+    
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_echeance")
     private Date dateEcheance;
+
+    
     @Size(max = 1000)
-    @Column(name = "commentaire")
+    @Column(name = "commentaire")  // Remove nullable = false since it's not marked @NotNull
     private String commentaire;
-    @JoinColumn(name = "idClient", referencedColumnName = "id_client")
-    @ManyToOne
+
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "idClient", referencedColumnName = "id_client", nullable = false)
     private Client client;
+
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "idEquipe", referencedColumnName = "id_equipe")
-    @ManyToOne
     private Equipe equipe;
-    @JoinColumn(name = "idModule", referencedColumnName = "id_module")
-    @ManyToOne
+
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "idModule", referencedColumnName = "id_module", nullable = false)
     private Module module;
-    @JoinColumn(name = "username", referencedColumnName = "username")
+
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "username", referencedColumnName = "username", nullable = false)
+    private User createur;
+
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
-    private User user;
+    private User collaborateur;
 
-    public Demande() {
-    }
+    // === Constructeurs ===
+    public Demande() {}
 
     public Demande(Integer idDemande) {
         this.idDemande = idDemande;
     }
 
-    public Demande(Integer idDemande, Date dateCreation, String etat, String priorite) {
+    public Demande(Integer idDemande, Date dateCreation, EtatDemande etat, PrioriteDemande priorite) {
         this.idDemande = idDemande;
         this.dateCreation = dateCreation;
         this.etat = etat;
         this.priorite = priorite;
     }
 
+    // === Getters & Setters ===
     public Integer getIdDemande() {
         return idDemande;
     }
@@ -134,19 +141,19 @@ public class Demande implements Serializable {
         this.dateAffectationCollaborateur = dateAffectationCollaborateur;
     }
 
-    public String getEtat() {
+    public EtatDemande getEtat() {
         return etat;
     }
 
-    public void setEtat(String etat) {
+    public void setEtat(EtatDemande etat) {
         this.etat = etat;
     }
 
-    public String getPriorite() {
+    public PrioriteDemande getPriorite() {
         return priorite;
     }
 
-    public void setPriorite(String priorite) {
+    public void setPriorite(PrioriteDemande priorite) {
         this.priorite = priorite;
     }
 
@@ -190,29 +197,48 @@ public class Demande implements Serializable {
         this.module = module;
     }
 
-    public User getUser() {
-        return user;
+    public User getCreateur() {
+        return createur;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setCreateur(User createur) {
+        this.createur = createur;
     }
 
+    public User getCollaborateur() {
+        return collaborateur;
+    }
+
+    public void setCollaborateur(User collaborateur) {
+        this.collaborateur = collaborateur;
+    }
+
+    // === Méthodes utilitaires ===
     @Override
     public int hashCode() {
-        int hash = 0;
-        hash += (idDemande != null ? idDemande.hashCode() : 0);
-        return hash;
+        return idDemande != null ? idDemande.hashCode() : 0;
     }
 
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (!(obj instanceof Demande)) return false;
+//        Demande other = (Demande) obj;
+//        return this.idDemande != null && this.idDemande.equals(other.idDemande);
+//    }
+
     @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Demande)) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        Demande other = (Demande) object;
-        if ((this.idDemande == null && other.idDemande != null) || (this.idDemande != null && !this.idDemande.equals(other.idDemande))) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Demande other = (Demande) obj;
+        if (!Objects.equals(this.idDemande, other.idDemande)) {
             return false;
         }
         return true;
@@ -220,7 +246,6 @@ public class Demande implements Serializable {
 
     @Override
     public String toString() {
-        return "com.csys.template.domain.Demande[ idDemande=" + idDemande + " ]";
+        return "Demande{idDemande=" + idDemande + '}';
     }
-    
 }

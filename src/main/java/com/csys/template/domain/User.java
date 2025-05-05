@@ -62,8 +62,17 @@ public class User implements Serializable {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Demande> demandeList;
+    
+    // Supprimer ou commenter cette ligne
+    //@OneToMany(mappedBy = "user")
+    //private List<Demande> demandeList;
+
+    @OneToMany(mappedBy = "createur")
+    private List<Demande> demandesCreees;
+    
+    @OneToMany(mappedBy = "collaborateur")
+    private List<Demande> demandesAssignees;
+
     @ManyToOne
     @JoinColumn(name = "id_poste", referencedColumnName = "id_poste")
     private Poste poste;
@@ -136,12 +145,28 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    public List<Demande> getDemandeList() {
-        return demandeList;
-    }
+    // public List<Demande> getDemandeList() {
+    //     return demandeList;
+    // }
 
-    public void setDemandeList(List<Demande> demandeList) {
-        this.demandeList = demandeList;
+    // public void setDemandeList(List<Demande> demandeList) {
+    //     this.demandeList = demandeList;
+    // }
+
+    public List<Demande> getDemandesCreees() {
+        return demandesCreees;
+    }
+    
+    public void setDemandesCreees(List<Demande> demandesCreees) {
+        this.demandesCreees = demandesCreees;
+    }
+    
+    public List<Demande> getDemandesAssignees() {
+        return demandesAssignees;
+    }
+    
+    public void setDemandesAssignees(List<Demande> demandesAssignees) {
+        this.demandesAssignees = demandesAssignees;
     }
     
     public Poste getPoste() {

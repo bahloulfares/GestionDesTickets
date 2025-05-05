@@ -1,0 +1,13 @@
+package com.csys.template.domain.enums;
+
+public enum EtatDemande {
+    DEMANDE_CREEE,
+    DEMANDE_EN_COURS_DE_VALIDATION,
+    DEMANDE_VALIDEE,
+    DEMANDE_REJETEE,
+    ASSIGNEE,
+    EN_COURS_DE_TRAITEMENT,
+    EN_ATTENTE_INFORMATIONS,
+    TERMINEE,
+    CLOTUREE
+}
