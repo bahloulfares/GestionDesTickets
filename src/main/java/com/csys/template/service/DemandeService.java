@@ -4,6 +4,7 @@ import com.csys.template.domain.Demande;
 import com.csys.template.dto.DemandeDTO;
 import com.csys.template.factory.DemandeFactory;
 import com.csys.template.repository.DemandeRepository;
+import com.csys.template.web.rest.errors.MyResourceNotFoundException;
 import com.google.common.base.Preconditions;
 import java.lang.Integer;
 import java.util.Collection;
@@ -53,9 +54,12 @@ public class DemandeService {
    * @return the updated entity
    */
   public DemandeDTO update(DemandeDTO demandeDTO) {
-    log.debug("Request to update Demande: {}",demandeDTO);
-    Demande inBase= demandeRepository.findById(demandeDTO.getIdDemande()).orElse(null);  //  (demandeDTO.getIdDemande());
-    Preconditions.checkArgument(inBase != null, "demande.NotFound");
+    log.debug("Request to update Demande: {}", demandeDTO);
+    Demande inBase = demandeRepository.findById(demandeDTO.getIdDemande()).orElse(null);
+    // Instead of using Preconditions.checkArgument
+    if (inBase == null) {
+      throw new MyResourceNotFoundException("demande.NotFound");
+    }
     Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
     demande = demandeRepository.save(demande);
     DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);

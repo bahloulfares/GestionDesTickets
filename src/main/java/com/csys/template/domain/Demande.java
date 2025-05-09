@@ -11,6 +11,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "Demande")
+@NamedQueries({
+    @NamedQuery(name = "Demande.findAll", query = "SELECT d FROM Demande d")})
 public class Demande implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -63,26 +65,31 @@ public class Demande implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
+    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idClient", referencedColumnName = "id_client", nullable = false)
     private Client client;
 
 
-    @ManyToOne(optional = false)
+    //@ManyToOne(optional = false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "idEquipe", referencedColumnName = "id_equipe")
     private Equipe equipe;
 
     @NotNull
     @ManyToOne(optional = false)
+    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idModule", referencedColumnName = "id_module", nullable = false)
     private Module module;
 
     @NotNull
     @ManyToOne(optional = false)
+    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "username", referencedColumnName = "username", nullable = false)
     private User createur;
 
 
-    @ManyToOne(optional = false)
+    //@ManyToOne(optional = false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
     private User collaborateur;
 
