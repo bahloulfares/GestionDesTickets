@@ -132,5 +132,58 @@ public class DemandeResource {
     demandeService.delete(id);
     return ResponseEntity.ok().build();
   }
+
+  /**
+   * PUT /demandes/{id}/equipe/{idEquipe} : Assigne une équipe à une demande
+   *
+   * @param id l'identifiant de la demande
+   * @param idEquipe l'identifiant de l'équipe à assigner
+   * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
+   */
+  @PutMapping("/demandes/{id}/equipe/{idEquipe}")
+  public ResponseEntity<DemandeDTO> assignerEquipe(@PathVariable Integer id, @PathVariable Integer idEquipe) {
+    log.debug("REST request to assign team {} to demand {}", idEquipe, id);
+    DemandeDTO result = demandeService.assignerEquipe(id, idEquipe);
+    return ResponseEntity.ok().body(result);
+  }
+
+  /**
+   * PUT /demandes/{id}/collaborateur/{username} : Assigne un collaborateur à une demande
+   *
+   * @param id l'identifiant de la demande
+   * @param username l'identifiant du collaborateur à assigner
+   * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
+   */
+  @PutMapping("/demandes/{id}/collaborateur/{username}")
+  public ResponseEntity<DemandeDTO> assignerCollaborateur(@PathVariable Integer id, @PathVariable String username) {
+    log.debug("REST request to assign collaborator {} to demand {}", username, id);
+    DemandeDTO result = demandeService.assignerCollaborateur(id, username);
+    return ResponseEntity.ok().body(result);
+  }
+
+  /**
+   * PUT /demandes/{id}/equipe/{idEquipe}/collaborateur/{username} : Assigne une équipe et un collaborateur à une demande
+   *
+   * @param id l'identifiant de la demande
+   * @param idEquipe l'identifiant de l'équipe à assigner
+   * @param username l'identifiant du collaborateur à assigner
+   * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
+   */
+  @PutMapping("/demandes/{id}/equipe/{idEquipe}/collaborateur/{username}")
+  public ResponseEntity<DemandeDTO> assignerEquipeEtCollaborateur(
+      @PathVariable Integer id, 
+      @PathVariable Integer idEquipe, 
+      @PathVariable String username) {
+    log.debug("REST request to assign team {} and collaborator {} to demand {}", idEquipe, username, id);
+    DemandeDTO result = demandeService.assignerEquipeEtCollaborateur(id, idEquipe, username);
+    return ResponseEntity.ok().body(result);
+  }
+
+  @DeleteMapping("/demandes/{id}/affectation")
+  public ResponseEntity<DemandeDTO> desaffecterDemande(@PathVariable("id") Integer id) {
+  log.debug("REST request to unassign demand {}", id);
+  DemandeDTO result = demandeService.desaffecterDemande(id);
+  return ResponseEntity.ok().body(result);
+}
 }
 

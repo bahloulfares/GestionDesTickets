@@ -89,7 +89,7 @@ public class Demande implements Serializable {
 
 
     //@ManyToOne(optional = false)
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
     private User collaborateur;
 
