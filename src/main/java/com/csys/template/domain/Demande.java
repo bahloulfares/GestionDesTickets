@@ -6,13 +6,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Entity
 @Table(name = "Demande")
 @NamedQueries({
-    @NamedQuery(name = "Demande.findAll", query = "SELECT d FROM Demande d")})
+        @NamedQuery(name = "Demande.findAll", query = "SELECT d FROM Demande d") })
 public class Demande implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,25 +26,19 @@ public class Demande implements Serializable {
     @Column(name = "idDemande")
     private Integer idDemande;
 
-    @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_creation", nullable = false)
-    private Date dateCreation;
+    private LocalDate dateCreation;
 
     @NotNull
     @Size(max = 500)
     @Column(name = "description", nullable = false)
     private String description;
 
-    
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_affectation_equipe")
-    private Date dateAffectationEquipe;
+    private LocalDate dateAffectationEquipe;
 
-    
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_affectation_collaborateur")
-    private Date dateAffectationCollaborateur;
+    private LocalDate dateAffectationCollaborateur;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -53,54 +50,68 @@ public class Demande implements Serializable {
     @Column(name = "priorite", nullable = false, length = 20)
     private PrioriteDemande priorite;
 
-    
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_echeance")
-    private Date dateEcheance;
+    private LocalDate dateEcheance;
 
-    
     @Size(max = 1000)
-    @Column(name = "commentaire")  // Remove nullable = false since it's not marked @NotNull
+    @Column(name = "commentaire") // Remove nullable = false since it's not marked @NotNull
     private String commentaire;
 
     @NotNull
     @ManyToOne(optional = false)
-    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idClient", referencedColumnName = "id_client", nullable = false)
     private Client client;
 
-
-    //@ManyToOne(optional = false)
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    // @ManyToOne(optional = false)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idEquipe", referencedColumnName = "id_equipe")
     private Equipe equipe;
 
     @NotNull
     @ManyToOne(optional = false)
-    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idModule", referencedColumnName = "id_module", nullable = false)
     private Module module;
 
-    @NotNull
     @ManyToOne(optional = false)
-    //@ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", referencedColumnName = "username", nullable = false)
+    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "username", referencedColumnName = "username", nullable = false, insertable = false, updatable = false)
     private User createur;
 
-
-    //@ManyToOne(optional = false)
+    private String username;
+    // @ManyToOne(optional = false)
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
     private User collaborateur;
 
+    @PrePersist
+    public void prePersist() {
+        this.dateCreation = LocalDate.now();
+        this.username = SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        // S'assurer que username n'est jamais null lors d'une mise à jour
+        if (this.username == null) {
+            this.username = SecurityContextHolder.getContext().getAuthentication().getName();
+        }
+        // S'assurer que dateCreation n'est jamais null lors d'une mise à jour
+        if (this.dateCreation == null) {
+            this.dateCreation = LocalDate.now();
+        }
+    }
+
     // === Constructeurs ===
-    public Demande() {}
+    public Demande() {
+    }
 
     public Demande(Integer idDemande) {
         this.idDemande = idDemande;
     }
 
-    public Demande(Integer idDemande, Date dateCreation, EtatDemande etat, PrioriteDemande priorite) {
+    public Demande(Integer idDemande, LocalDate dateCreation, EtatDemande etat, PrioriteDemande priorite) {
         this.idDemande = idDemande;
         this.dateCreation = dateCreation;
         this.etat = etat;
@@ -116,36 +127,12 @@ public class Demande implements Serializable {
         this.idDemande = idDemande;
     }
 
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Date getDateAffectationEquipe() {
-        return dateAffectationEquipe;
-    }
-
-    public void setDateAffectationEquipe(Date dateAffectationEquipe) {
-        this.dateAffectationEquipe = dateAffectationEquipe;
-    }
-
-    public Date getDateAffectationCollaborateur() {
-        return dateAffectationCollaborateur;
-    }
-
-    public void setDateAffectationCollaborateur(Date dateAffectationCollaborateur) {
-        this.dateAffectationCollaborateur = dateAffectationCollaborateur;
     }
 
     public EtatDemande getEtat() {
@@ -160,15 +147,39 @@ public class Demande implements Serializable {
         return priorite;
     }
 
+    public LocalDate getDateCreation() {
+        return dateCreation;
+    }
+
+    public void setDateCreation(LocalDate dateCreation) {
+        this.dateCreation = dateCreation;
+    }
+
+    public LocalDate getDateAffectationEquipe() {
+        return dateAffectationEquipe;
+    }
+
+    public void setDateAffectationEquipe(LocalDate dateAffectationEquipe) {
+        this.dateAffectationEquipe = dateAffectationEquipe;
+    }
+
+    public LocalDate getDateAffectationCollaborateur() {
+        return dateAffectationCollaborateur;
+    }
+
+    public void setDateAffectationCollaborateur(LocalDate dateAffectationCollaborateur) {
+        this.dateAffectationCollaborateur = dateAffectationCollaborateur;
+    }
+
     public void setPriorite(PrioriteDemande priorite) {
         this.priorite = priorite;
     }
 
-    public Date getDateEcheance() {
+    public LocalDate getDateEcheance() {
         return dateEcheance;
     }
 
-    public void setDateEcheance(Date dateEcheance) {
+    public void setDateEcheance(LocalDate dateEcheance) {
         this.dateEcheance = dateEcheance;
     }
 
@@ -220,19 +231,26 @@ public class Demande implements Serializable {
         this.collaborateur = collaborateur;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     // === Méthodes utilitaires ===
     @Override
     public int hashCode() {
         return idDemande != null ? idDemande.hashCode() : 0;
     }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (!(obj instanceof Demande)) return false;
-//        Demande other = (Demande) obj;
-//        return this.idDemande != null && this.idDemande.equals(other.idDemande);
-//    }
-
+    // @Override
+    // public boolean equals(Object obj) {
+    // if (!(obj instanceof Demande)) return false;
+    // Demande other = (Demande) obj;
+    // return this.idDemande != null && this.idDemande.equals(other.idDemande);
+    // }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -65,9 +65,9 @@ public class DemandeResource {
     if (demandeDTO.getModule() == null) {
       bindingResult.addError(new FieldError("DemandeDTO", "module", "Module is required"));
     }
-    if (demandeDTO.getCreateur() == null) {
-      bindingResult.addError(new FieldError("DemandeDTO", "createur", "Createur is required"));
-    }
+    // if (demandeDTO.getCreateur() == null) {
+    //   bindingResult.addError(new FieldError("DemandeDTO", "createur", "Createur is required"));
+    // }
     
     if (bindingResult.hasErrors()) {
       throw new MethodArgumentNotValidException(null, bindingResult);

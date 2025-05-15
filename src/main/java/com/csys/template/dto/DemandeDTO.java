@@ -10,7 +10,7 @@ import com.csys.template.domain.enums.PrioriteDemande;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class DemandeDTO implements Serializable {
 
@@ -18,15 +18,15 @@ public class DemandeDTO implements Serializable {
 
   private Integer idDemande;
 
-  @NotNull
-  private Date dateCreation;
+  //@NotNull
+  private LocalDate dateCreation;
 
   @Size(max = 500)
   private String description;
 
-  private Date dateAffectationEquipe;
+  private LocalDate dateAffectationEquipe;
 
-  private Date dateAffectationCollaborateur;
+  private LocalDate dateAffectationCollaborateur;
 
   @NotNull
   private EtatDemande etat;
@@ -34,7 +34,7 @@ public class DemandeDTO implements Serializable {
   @NotNull
   private PrioriteDemande priorite;
 
-  private Date dateEcheance;
+  private LocalDate dateEcheance;
 
   @Size(max = 1000)
   private String commentaire;
@@ -59,11 +59,11 @@ public class DemandeDTO implements Serializable {
     this.idDemande = idDemande;
   }
 
-  public Date getDateCreation() {
+  public LocalDate getDateCreation() {
     return dateCreation;
   }
 
-  public void setDateCreation(Date dateCreation) {
+  public void setDateCreation(LocalDate dateCreation) {
     this.dateCreation = dateCreation;
   }
 
@@ -75,19 +75,19 @@ public class DemandeDTO implements Serializable {
     this.description = description;
   }
 
-  public Date getDateAffectationEquipe() {
+  public LocalDate getDateAffectationEquipe() {
     return dateAffectationEquipe;
   }
 
-  public void setDateAffectationEquipe(Date dateAffectationEquipe) {
+  public void setDateAffectationEquipe(LocalDate dateAffectationEquipe) {
     this.dateAffectationEquipe = dateAffectationEquipe;
   }
 
-  public Date getDateAffectationCollaborateur() {
+  public LocalDate getDateAffectationCollaborateur() {
     return dateAffectationCollaborateur;
   }
 
-  public void setDateAffectationCollaborateur(Date dateAffectationCollaborateur) {
+  public void setDateAffectationCollaborateur(LocalDate dateAffectationCollaborateur) {
     this.dateAffectationCollaborateur = dateAffectationCollaborateur;
   }
 
@@ -107,11 +107,11 @@ public class DemandeDTO implements Serializable {
     this.priorite = priorite;
   }
 
-  public Date getDateEcheance() {
+  public LocalDate getDateEcheance() {
     return dateEcheance;
   }
 
-  public void setDateEcheance(Date dateEcheance) {
+  public void setDateEcheance(LocalDate dateEcheance) {
     this.dateEcheance = dateEcheance;
   }
 

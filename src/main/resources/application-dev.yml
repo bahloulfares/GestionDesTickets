@@ -54,6 +54,10 @@ spring:
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
             org.hibernate.envers.store_data_at_delete: true
+    redis:
+        host: localhost
+        port: 6379
+        timeout: 60000        
     mail:
         username: 
         password: 

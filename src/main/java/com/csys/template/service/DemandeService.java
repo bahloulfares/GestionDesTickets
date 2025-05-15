@@ -18,7 +18,9 @@ import com.csys.template.domain.User;
 import com.csys.template.domain.enums.EtatDemande;
 import com.csys.template.repository.EquipeRepository;
 import com.csys.template.repository.UserRepository;
+import java.time.LocalDate;
 import java.util.Date;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Service Implementation for managing Demande.
@@ -26,269 +28,282 @@ import java.util.Date;
 @Service
 @Transactional
 public class DemandeService {
-  private final Logger log = LoggerFactory.getLogger(DemandeService.class);
-
-  private final DemandeRepository demandeRepository;
-  private final EquipeRepository equipeRepository;
-  private final UserRepository userRepository;
-
-  public DemandeService(DemandeRepository demandeRepository, EquipeRepository equipeRepository, UserRepository userRepository) {
-    this.demandeRepository = demandeRepository;
-    this.equipeRepository = equipeRepository;
-    this.userRepository = userRepository;
-  }
-
-  /**
-   * Save a demandeDTO.
-   *
-   * @param demandeDTO
-   * @return the persisted entity
-   */
-  public DemandeDTO save(DemandeDTO demandeDTO) {
-    log.debug("Request to save Demande: {}", demandeDTO);
     
-    // Validate required relationships before saving
-    Preconditions.checkArgument(demandeDTO.getClient() != null, "client.NotNull");
-    Preconditions.checkArgument(demandeDTO.getModule() != null, "module.NotNull");
-    Preconditions.checkArgument(demandeDTO.getCreateur() != null, "createur.NotNull");
+    private final Logger log = LoggerFactory.getLogger(DemandeService.class);
     
-    Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
-    demande = demandeRepository.save(demande);
-    DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);
-    return resultDTO;
-  }
-
-  /**
-   * Update a demandeDTO.
-   *
-   * @param demandeDTO
-   * @return the updated entity
-   */
-  public DemandeDTO update(DemandeDTO demandeDTO) {
-    log.debug("Request to update Demande: {}", demandeDTO);
-    Demande inBase = demandeRepository.findById(demandeDTO.getIdDemande()).orElse(null);
-    // Instead of using Preconditions.checkArgument
-    if (inBase == null) {
-      throw new MyResourceNotFoundException("demande.NotFound");
+    private final DemandeRepository demandeRepository;
+    private final EquipeRepository equipeRepository;
+    private final UserRepository userRepository;
+    
+    public DemandeService(DemandeRepository demandeRepository, EquipeRepository equipeRepository, UserRepository userRepository) {
+        this.demandeRepository = demandeRepository;
+        this.equipeRepository = equipeRepository;
+        this.userRepository = userRepository;
     }
-    Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
-    demande = demandeRepository.save(demande);
-    DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);
-    return resultDTO;
-  }
 
-  /**
-   * Get one demandeDTO by id.
-   *
-   * @param id the id of the entity
-   * @return the entity DTO
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public DemandeDTO findOne(Integer id) {
-    log.debug("Request to get Demande: {}",id);
-    Demande demande= demandeRepository.findById(id).orElse(null);
-    DemandeDTO dto = DemandeFactory.demandeToDemandeDTO(demande);
-    return dto;
-  }
+    /**
+     * Save a demandeDTO.
+     *
+     * @param demandeDTO
+     * @return the persisted entity
+     */
+    public DemandeDTO save(DemandeDTO demandeDTO) {
+        log.debug("Request to save Demande: {}", demandeDTO);
 
-  /**
-   * Get one demande by id.
-   *
-   * @param id the id of the entity
-   * @return the entity
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Demande findDemande(Integer id) {
-    log.debug("Request to get Demande: {}",id);
-    Demande demande= demandeRepository.findById(id).orElse(null);
-    return demande;
-  }
-
-  /**
-   * Get all the demandes.
-   *
-   * @return the the list of entities
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Collection<DemandeDTO> findAll() {
-    log.debug("Request to get All Demandes");
-    Collection<Demande> result= demandeRepository.findAll();
-    return DemandeFactory.demandeToDemandeDTOs(result);
-  }
-
-  /**
-   * Delete demande by id.
-   *
-   * @param id the id of the entity
-   */
-  public void delete(Integer id) {
-    log.debug("Request to delete Demande: {}",id);
-    demandeRepository.deleteById(id);
-  }
-
-  /**
-   * Assigne une équipe à une demande existante
-   *
-   * @param idDemande l'identifiant de la demande
-   * @param idEquipe l'identifiant de l'équipe à assigner
-   * @return la demande mise à jour
-   */
-  @Transactional
-  public DemandeDTO assignerEquipe(Integer idDemande, Integer idEquipe) {
-    log.debug("Assignation de l'équipe {} à la demande {}", idEquipe, idDemande);
-    
-    // Récupération de la demande
-    Demande demande = demandeRepository.findById(idDemande)
-        .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
-    
-    // Récupération de l'équipe
-    Equipe equipe = equipeRepository.findById(idEquipe)
-        .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
-    
-    // Assignation de l'équipe à la demande
-    demande.setEquipe(equipe);
-    
-    // Mise à jour de la date d'affectation
-    demande.setDateAffectationEquipe(new Date());
-    
-    // Mise à jour de l'état de la demande
-    demande.setEtat(EtatDemande.ASSIGNEE);
-    
-    // Sauvegarde de la demande
-    demande = demandeRepository.save(demande);
-    
-    // Conversion en DTO (dans la même transaction)
-    return DemandeFactory.demandeToDemandeDTO(demande);
-  }
-
-  /**
-   * Assigne un collaborateur à une demande existante
-   *
-   * @param idDemande l'identifiant de la demande
-   * @param username l'identifiant du collaborateur à assigner
-   * @return la demande mise à jour
-   */
-  @Transactional
-  public DemandeDTO assignerCollaborateur(Integer idDemande, String username) {
-    log.debug("Assignation du collaborateur {} à la demande {}", username, idDemande);
-    
-    // Récupération de la demande
-    Demande demande = demandeRepository.findById(idDemande)
-        .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
-    
-    // Récupération du collaborateur
-    User collaborateur = userRepository.findById(username)
-        .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
-    
-    // Assignation du collaborateur à la demande
-    demande.setCollaborateur(collaborateur);
-    
-    // Mise à jour de la date d'affectation
-    demande.setDateAffectationCollaborateur(new Date());
-    
-    // Mise à jour de l'état de la demande
-    demande.setEtat(EtatDemande.ASSIGNEE);
-    
-    // Sauvegarde de la demande
-    demande = demandeRepository.save(demande);
-    
-    // Conversion en DTO (dans la même transaction)
-    return DemandeFactory.demandeToDemandeDTO(demande);
-  }
-
-  /**
-   * Méthode combinée pour assigner à la fois une équipe et un collaborateur
-   * Utile lorsque le collaborateur fait partie de l'équipe assignée
-   *
-   * @param idDemande l'identifiant de la demande
-   * @param idEquipe l'identifiant de l'équipe à assigner
-   * @param username l'identifiant du collaborateur à assigner
-   * @return la demande mise à jour
-   */
-  @Transactional
-  public DemandeDTO assignerEquipeEtCollaborateur(Integer idDemande, Integer idEquipe, String username) {
-    log.debug("Assignation de l'équipe {} et du collaborateur {} à la demande {}", idEquipe, username, idDemande);
-    
-    // Récupération de la demande
-    Demande demande = demandeRepository.findById(idDemande)
-        .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
-    
-    // Récupération de l'équipe
-    Equipe equipe = equipeRepository.findById(idEquipe)
-        .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
-    
-    // Récupération du collaborateur
-    User collaborateur = userRepository.findById(username)
-        .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
-    
-    // Vérification que le collaborateur appartient à l'équipe
-    boolean collaborateurDansEquipe = collaborateur.getEquipe() != null && 
-                                   collaborateur.getEquipe().getIdEquipe().equals(idEquipe);
-    
-    if (!collaborateurDansEquipe) {
-      log.warn("Le collaborateur {} n'appartient pas à l'équipe {}", username, idEquipe);
-      // Remplacer le simple avertissement par une exception métier
-      throw new IllegalBusinessLogiqueException("collaborateur.not.in.team");
+        // Vérification des relations essentielles
+        if (demandeDTO.getClient() == null) {
+            throw new IllegalBusinessLogiqueException("client.NotNull");
+        }
+        if (demandeDTO.getModule() == null) {
+            throw new IllegalBusinessLogiqueException("module.NotNull");
+        }
+//        if (demandeDTO.getCreateur() == null) {
+//            throw new IllegalBusinessLogiqueException("createur.NotNull");
+//        }
+        log.debug("test user {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
+        demande = demandeRepository.save(demande);
+        DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);
+        return resultDTO;
     }
-    
-    // Assignation de l'équipe et du collaborateur
-    demande.setEquipe(equipe);
-    demande.setCollaborateur(collaborateur);
-    
-    // Mise à jour des dates d'affectation
-    Date maintenant = new Date();
-    demande.setDateAffectationEquipe(maintenant);
-    demande.setDateAffectationCollaborateur(maintenant);
-    
-    // Mise à jour de l'état de la demande
-    demande.setEtat(EtatDemande.ASSIGNEE);
-    
-    // Sauvegarde de la demande
-    demande = demandeRepository.save(demande);
-    
-    // Conversion en DTO (dans la même transaction)
-    return DemandeFactory.demandeToDemandeDTO(demande);
-  }
 
-  /**
-   * Désaffecte l'équipe et le collaborateur d'une demande
-   *
-   * @param idDemande l'identifiant de la demande
-   * @return la demande mise à jour
-   */
-  @Transactional
-  public DemandeDTO desaffecterDemande(Integer idDemande) {
-    log.debug("Désaffectation de la demande {}", idDemande);
-    
-    // Récupération de la demande
-    Demande demande = demandeRepository.findById(idDemande)
-        .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
-    
-    // Vérification que la demande est bien dans un état permettant la désaffectation
-    if (demande.getEtat() != EtatDemande.ASSIGNEE && demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
-      throw new IllegalBusinessLogiqueException("demande.cannot.unassign");
+    /**
+     * Update a demandeDTO.
+     *
+     * @param demandeDTO
+     * @return the updated entity
+     */
+    public DemandeDTO update(DemandeDTO demandeDTO) {
+        log.debug("Request to update Demande: {}", demandeDTO);
+        Demande inBase = demandeRepository.findById(demandeDTO.getIdDemande()).orElse(null);
+        // Instead of using Preconditions.checkArgument
+        if (inBase == null) {
+            throw new MyResourceNotFoundException("demande.NotFound");
+        }
+        Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
+        demande = demandeRepository.save(demande);
+        DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);
+        return resultDTO;
     }
-    
-    // Désaffectation
-    demande.setEquipe(null);
-    demande.setCollaborateur(null);
-    demande.setDateAffectationEquipe(null);
-    demande.setDateAffectationCollaborateur(null);
-    
-    // Mise à jour de l'état
-    demande.setEtat(EtatDemande.DEMANDE_CREEE);
-    
-    // Sauvegarde de la demande
-    demande = demandeRepository.save(demande);
-    
-    // Conversion en DTO
-    return DemandeFactory.demandeToDemandeDTO(demande);
-  }
+
+    /**
+     * Get one demandeDTO by id.
+     *
+     * @param id the id of the entity
+     * @return the entity DTO
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public DemandeDTO findOne(Integer id) {
+        log.debug("Request to get Demande: {}", id);
+        Demande demande = demandeRepository.findById(id).orElse(null);
+        DemandeDTO dto = DemandeFactory.demandeToDemandeDTO(demande);
+        return dto;
+    }
+
+    /**
+     * Get one demande by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Demande findDemande(Integer id) {
+        log.debug("Request to get Demande: {}", id);
+        Demande demande = demandeRepository.findById(id).orElse(null);
+        return demande;
+    }
+
+    /**
+     * Get all the demandes.
+     *
+     * @return the the list of entities
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Collection<DemandeDTO> findAll() {
+        log.debug("Request to get All Demandes");
+        Collection<Demande> result = demandeRepository.findAll();
+        return DemandeFactory.demandeToDemandeDTOs(result);
+    }
+
+    /**
+     * Delete demande by id.
+     *
+     * @param id the id of the entity
+     */
+    public void delete(Integer id) {
+        log.debug("Request to delete Demande: {}", id);
+        demandeRepository.deleteById(id);
+    }
+
+    /**
+     * Assigne une équipe à une demande existante
+     *
+     * @param idDemande l'identifiant de la demande
+     * @param idEquipe l'identifiant de l'équipe à assigner
+     * @return la demande mise à jour
+     */
+    @Transactional
+    public DemandeDTO assignerEquipe(Integer idDemande, Integer idEquipe) {
+        log.debug("Assignation de l'équipe {} à la demande {}", idEquipe, idDemande);
+
+        // Récupération de la demande
+        Demande demande = demandeRepository.findById(idDemande)
+                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
+
+        // Récupération de l'équipe
+        Equipe equipe = equipeRepository.findById(idEquipe)
+                .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
+
+        
+
+        // Vérification si une équipe est déjà assignée
+//        if (demande.getEquipe() != null) {
+//            throw new IllegalBusinessLogiqueException("demande.equipe.already.assigned");
+//        }
+        
+        // Assignation de l'équipe à la demande
+        demande.setEquipe(equipe);
+        demande.setCollaborateur(null);
+        // Mise à jour de la date d'affectation
+        demande.setDateAffectationEquipe(LocalDate.now());
+
+        // Mise à jour de l'état de la demande
+        demande.setEtat(EtatDemande.ASSIGNEE);
+
+        // Sauvegarde de la demande
+        demande = demandeRepository.save(demande);
+
+        // Conversion en DTO (dans la même transaction)
+        return DemandeFactory.demandeToDemandeDTO(demande);
+    }
+
+    /**
+     * Assigne un collaborateur à une demande existante
+     *
+     * @param idDemande l'identifiant de la demande
+     * @param username l'identifiant du collaborateur à assigner
+     * @return la demande mise à jour
+     */
+    @Transactional
+    public DemandeDTO assignerCollaborateur(Integer idDemande, String username) {
+        log.debug("Assignation du collaborateur {} à la demande {}", username, idDemande);
+
+        // Récupération de la demande
+        Demande demande = demandeRepository.findById(idDemande)
+                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
+
+        // Récupération du collaborateur
+        User collaborateur = userRepository.findById(username)
+                .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
+
+        // Assignation du collaborateur à la demande
+        demande.setCollaborateur(collaborateur);
+
+        // Mise à jour de la date d'affectation
+        demande.setDateAffectationCollaborateur(LocalDate.now());
+
+        // Mise à jour de l'état de la demande
+        demande.setEtat(EtatDemande.ASSIGNEE);
+
+        // Sauvegarde de la demande
+        demande = demandeRepository.save(demande);
+
+        // Conversion en DTO (dans la même transaction)
+        return DemandeFactory.demandeToDemandeDTO(demande);
+    }
+
+    /**
+     * Méthode combinée pour assigner à la fois une équipe et un collaborateur
+     * Utile lorsque le collaborateur fait partie de l'équipe assignée
+     *
+     * @param idDemande l'identifiant de la demande
+     * @param idEquipe l'identifiant de l'équipe à assigner
+     * @param username l'identifiant du collaborateur à assigner
+     * @return la demande mise à jour
+     */
+    @Transactional
+    public DemandeDTO assignerEquipeEtCollaborateur(Integer idDemande, Integer idEquipe, String username) {
+        log.debug("Assignation de l'équipe {} et du collaborateur {} à la demande {}", idEquipe, username, idDemande);
+
+        // Récupération de la demande
+        Demande demande = demandeRepository.findById(idDemande)
+                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
+
+        // Récupération de l'équipe
+        Equipe equipe = equipeRepository.findById(idEquipe)
+                .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
+
+        // Récupération du collaborateur
+        User collaborateur = userRepository.findById(username)
+                .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
+
+        // Vérification que le collaborateur appartient à l'équipe
+        boolean collaborateurDansEquipe = collaborateur.getEquipe() != null
+                && collaborateur.getEquipe().getIdEquipe().equals(idEquipe);
+        
+        if (!collaborateurDansEquipe) {
+            log.warn("Le collaborateur {} n'appartient pas à l'équipe {}", username, idEquipe);
+            // Remplacer le simple avertissement par une exception métier
+            throw new IllegalBusinessLogiqueException("collaborateur.not.in.team");
+        }
+
+        // Assignation de l'équipe et du collaborateur
+        demande.setEquipe(equipe);
+        demande.setCollaborateur(collaborateur);
+
+        // Mise à jour des dates d'affectation
+        LocalDate maintenant = LocalDate.now();
+        demande.setDateAffectationEquipe(maintenant);
+        demande.setDateAffectationCollaborateur(maintenant);
+
+        // Mise à jour de l'état de la demande
+        demande.setEtat(EtatDemande.ASSIGNEE);
+
+        // Sauvegarde de la demande
+        demande = demandeRepository.save(demande);
+
+        // Conversion en DTO (dans la même transaction)
+        return DemandeFactory.demandeToDemandeDTO(demande);
+    }
+
+    /**
+     * Désaffecte l'équipe et le collaborateur d'une demande
+     *
+     * @param idDemande l'identifiant de la demande
+     * @return la demande mise à jour
+     */
+    @Transactional
+    public DemandeDTO desaffecterDemande(Integer idDemande) {
+        log.debug("Désaffectation de la demande {}", idDemande);
+
+        // Récupération de la demande
+        Demande demande = demandeRepository.findById(idDemande)
+                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
+
+        // Vérification que la demande est bien dans un état permettant la désaffectation
+        if (demande.getEtat() != EtatDemande.ASSIGNEE && demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
+            throw new IllegalBusinessLogiqueException("demande.cannot.unassign");
+        }
+
+        // Désaffectation
+        demande.setEquipe(null);
+        demande.setCollaborateur(null);
+        demande.setDateAffectationEquipe(null);
+        demande.setDateAffectationCollaborateur(null);
+
+        // Mise à jour de l'état
+        demande.setEtat(EtatDemande.DEMANDE_CREEE);
+
+        // Sauvegarde de la demande
+        demande = demandeRepository.save(demande);
+
+        // Conversion en DTO
+        return DemandeFactory.demandeToDemandeDTO(demande);
+    }
 }
-
