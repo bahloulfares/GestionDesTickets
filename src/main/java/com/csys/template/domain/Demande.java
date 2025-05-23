@@ -79,11 +79,14 @@ public class Demande implements Serializable {
     @JoinColumn(name = "username", referencedColumnName = "username", nullable = false, insertable = false, updatable = false)
     private User createur;
 
+    
     private String username;
     // @ManyToOne(optional = false)
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
     private User collaborateur;
+    
+    //private String dernierModificateur;
 
     @PrePersist
     public void prePersist() {
@@ -94,13 +97,17 @@ public class Demande implements Serializable {
     @PreUpdate
     public void preUpdate() {
         // S'assurer que username n'est jamais null lors d'une mise à jour
-        if (this.username == null) {
-            this.username = SecurityContextHolder.getContext().getAuthentication().getName();
-        }
+        // if (this.username == null) {
+        //     this.username = SecurityContextHolder.getContext().getAuthentication().getName();
+        // }
+        
+        // Toujours mettre à jour le dernier modificateur lors d'une modification
+        //this.dernierModificateur = SecurityContextHolder.getContext().getAuthentication().getName();
+        
         // S'assurer que dateCreation n'est jamais null lors d'une mise à jour
-        if (this.dateCreation == null) {
-            this.dateCreation = LocalDate.now();
-        }
+//        if (this.dateCreation == null) {
+//            this.dateCreation = LocalDate.now();
+//        }
     }
 
     // === Constructeurs ===
@@ -238,6 +245,14 @@ public class Demande implements Serializable {
     public void setUsername(String username) {
         this.username = username;
     }
+
+//    public String getDernierModificateur() {
+//        return dernierModificateur;
+//    }
+//
+//    public void setDernierModificateur(String dernierModificateur) {
+//        this.dernierModificateur = dernierModificateur;
+//    }
 
     // === Méthodes utilitaires ===
     @Override

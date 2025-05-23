@@ -21,7 +21,7 @@ public class DemandeDTO implements Serializable {
   //@NotNull
   private LocalDate dateCreation;
 
-  @Size(max = 500)
+  @Size(max = 1000)
   private String description;
 
   private LocalDate dateAffectationEquipe;
@@ -39,15 +39,15 @@ public class DemandeDTO implements Serializable {
   @Size(max = 1000)
   private String commentaire;
 
-  private Client client;
+  private ClientDTO client;
 
-  private Equipe equipe;
+  private EquipeDTO equipe;
 
-  private Module module;
+  private ModuleDTO module;
 
-  private User createur;
+  private UserDTO createur;
 
-  private User collaborateur;
+  private UserDTO collaborateur;
 
   // === Getters and Setters ===
 
@@ -123,43 +123,43 @@ public class DemandeDTO implements Serializable {
     this.commentaire = commentaire;
   }
 
-  public Client getClient() {
+  public ClientDTO getClient() {
     return client;
   }
 
-  public void setClient(Client client) {
+  public void setClient(ClientDTO client) {
     this.client = client;
   }
 
-  public Equipe getEquipe() {
+  public EquipeDTO getEquipe() {
     return equipe;
   }
 
-  public void setEquipe(Equipe equipe) {
+  public void setEquipe(EquipeDTO equipe) {
     this.equipe = equipe;
   }
 
-  public Module getModule() {
+  public ModuleDTO getModule() {
     return module;
   }
 
-  public void setModule(Module module) {
+  public void setModule(ModuleDTO module) {
     this.module = module;
   }
 
-  public User getCreateur() {
+  public UserDTO getCreateur() {
     return createur;
   }
 
-  public void setCreateur(User createur) {
+  public void setCreateur(UserDTO createur) {
     this.createur = createur;
   }
 
-  public User getCollaborateur() {
+  public UserDTO getCollaborateur() {
     return collaborateur;
   }
 
-  public void setCollaborateur(User collaborateur) {
+  public void setCollaborateur(UserDTO collaborateur) {
     this.collaborateur = collaborateur;
   }
 }

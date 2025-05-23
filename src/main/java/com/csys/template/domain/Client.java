@@ -18,6 +18,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  *
@@ -27,6 +30,7 @@ import javax.validation.constraints.Size;
 @Table(name = "Client")
 @NamedQueries({
     @NamedQuery(name = "Client.findAll", query = "SELECT c FROM Client c")})
+@Audited
 public class Client implements Serializable {
 
     @Basic(optional = false)
@@ -43,6 +47,8 @@ public class Client implements Serializable {
     @Size(max = 255)
     @Column(name = "adresse")
     private String adresse;
+    @NotAudited
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @OneToMany(mappedBy = "client")
     private List<Demande> demandeList;
 

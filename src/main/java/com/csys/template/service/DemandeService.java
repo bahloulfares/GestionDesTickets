@@ -6,7 +6,6 @@ import com.csys.template.factory.DemandeFactory;
 import com.csys.template.repository.DemandeRepository;
 import com.csys.template.web.rest.errors.MyResourceNotFoundException;
 import com.csys.template.web.rest.errors.IllegalBusinessLogiqueException;
-import com.google.common.base.Preconditions;
 import java.lang.Integer;
 import java.util.Collection;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import com.csys.template.domain.enums.EtatDemande;
 import com.csys.template.repository.EquipeRepository;
 import com.csys.template.repository.UserRepository;
 import java.time.LocalDate;
-import java.util.Date;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -28,13 +26,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Service
 @Transactional
 public class DemandeService {
-    
+
     private final Logger log = LoggerFactory.getLogger(DemandeService.class);
-    
+
     private final DemandeRepository demandeRepository;
     private final EquipeRepository equipeRepository;
     private final UserRepository userRepository;
-    
+
     public DemandeService(DemandeRepository demandeRepository, EquipeRepository equipeRepository, UserRepository userRepository) {
         this.demandeRepository = demandeRepository;
         this.equipeRepository = equipeRepository;
@@ -80,7 +78,17 @@ public class DemandeService {
         if (inBase == null) {
             throw new MyResourceNotFoundException("demande.NotFound");
         }
+        // Préserver le créateur original
+        String originalUsername = inBase.getUsername();
+        LocalDate originalDateCreation = inBase.getDateCreation();
+        LocalDate originalDateAssigneEquipe = inBase.getDateAffectationEquipe();
+        LocalDate originalDateAssigneCollab = inBase.getDateAffectationCollaborateur();
         Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
+        // Restaurer le créateur original
+        demande.setUsername(originalUsername);
+        demande.setDateCreation(originalDateCreation);
+        demande.setDateAffectationEquipe(originalDateAssigneEquipe);
+        demande.setDateAffectationCollaborateur(originalDateAssigneCollab);
         demande = demandeRepository.save(demande);
         DemandeDTO resultDTO = DemandeFactory.demandeToDemandeDTO(demande);
         return resultDTO;
@@ -160,13 +168,15 @@ public class DemandeService {
         Equipe equipe = equipeRepository.findById(idEquipe)
                 .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
 
-        
+        // Vérification de l'état de la demande
+        if (demande.getEtat() == EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION || demande.getEtat() == EtatDemande.DEMANDE_CREEE || demande.getEtat() == EtatDemande.DEMANDE_REJETEE || demande.getEtat() == EtatDemande.TERMINEE || demande.getEtat() == EtatDemande.CLOTUREE) {
+            throw new IllegalBusinessLogiqueException("demande.etat.invalid.pour.affectation");
+        }
 
-        // Vérification si une équipe est déjà assignée
-//        if (demande.getEquipe() != null) {
-//            throw new IllegalBusinessLogiqueException("demande.equipe.already.assigned");
-//        }
-        
+        // // Vérification que la demande est dans un état valide pour l'affectation
+        // if (demande.getEtat() != EtatDemande.DEMANDE_VALIDEE || demande.getEtat() != EtatDemande.ASSIGNEE || demande.getEtat() != EtatDemande.EN_ATTENTE_INFORMATIONS || demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
+        //     throw new IllegalBusinessLogiqueException("demande.etat.non.valide.pour.affectation");
+        // }
         // Assignation de l'équipe à la demande
         demande.setEquipe(equipe);
         demande.setCollaborateur(null);
@@ -202,6 +212,15 @@ public class DemandeService {
         User collaborateur = userRepository.findById(username)
                 .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
 
+        // Vérification de l'état de la demande
+        if (demande.getEtat() == EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION || demande.getEtat() == EtatDemande.DEMANDE_CREEE || demande.getEtat() == EtatDemande.DEMANDE_REJETEE || demande.getEtat() == EtatDemande.TERMINEE || demande.getEtat() == EtatDemande.CLOTUREE) {
+            throw new IllegalBusinessLogiqueException("demande.etat.invalid.pour.affectation");
+        }
+
+        // // Vérification que la demande est dans un état valide pour l'affectation
+        // if (demande.getEtat() != EtatDemande.DEMANDE_VALIDEE || demande.getEtat() != EtatDemande.ASSIGNEE || demande.getEtat() != EtatDemande.EN_ATTENTE_INFORMATIONS || demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
+        //     throw new IllegalBusinessLogiqueException("demande.etat.non.valide.pour.affectation");
+        // }
         // Assignation du collaborateur à la demande
         demande.setCollaborateur(collaborateur);
 
@@ -235,6 +254,15 @@ public class DemandeService {
         Demande demande = demandeRepository.findById(idDemande)
                 .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
 
+        // Vérification de l'état de la demande
+        if (demande.getEtat() == EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION || demande.getEtat() == EtatDemande.DEMANDE_CREEE || demande.getEtat() == EtatDemande.DEMANDE_REJETEE || demande.getEtat() == EtatDemande.TERMINEE || demande.getEtat() == EtatDemande.CLOTUREE) {
+            throw new IllegalBusinessLogiqueException("demande.etat.invalid.pour.affectation");
+        }
+
+        // // Vérification que la demande est dans un état valide pour l'affectation
+        // if (demande.getEtat() != EtatDemande.DEMANDE_VALIDEE || demande.getEtat() != EtatDemande.ASSIGNEE || demande.getEtat() != EtatDemande.EN_ATTENTE_INFORMATIONS || demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
+        //     throw new IllegalBusinessLogiqueException("demande.etat.non.valide.pour.affectation");
+        // }
         // Récupération de l'équipe
         Equipe equipe = equipeRepository.findById(idEquipe)
                 .orElseThrow(() -> new MyResourceNotFoundException("equipe.NotFound"));
@@ -246,7 +274,7 @@ public class DemandeService {
         // Vérification que le collaborateur appartient à l'équipe
         boolean collaborateurDansEquipe = collaborateur.getEquipe() != null
                 && collaborateur.getEquipe().getIdEquipe().equals(idEquipe);
-        
+
         if (!collaborateurDansEquipe) {
             log.warn("Le collaborateur {} n'appartient pas à l'équipe {}", username, idEquipe);
             // Remplacer le simple avertissement par une exception métier
@@ -298,7 +326,7 @@ public class DemandeService {
         demande.setDateAffectationCollaborateur(null);
 
         // Mise à jour de l'état
-        demande.setEtat(EtatDemande.DEMANDE_CREEE);
+        demande.setEtat(EtatDemande.DEMANDE_VALIDEE);
 
         // Sauvegarde de la demande
         demande = demandeRepository.save(demande);
@@ -306,4 +334,6 @@ public class DemandeService {
         // Conversion en DTO
         return DemandeFactory.demandeToDemandeDTO(demande);
     }
+
+
 }
