@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,6 +26,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.web.bind.annotation.RequestParam;
 /**
  * REST controller for managing Demande.
  */
@@ -133,6 +138,7 @@ public class DemandeResource {
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/demandes/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteDemande(@PathVariable Integer id) {
         log.debug("Request to delete Demande: {}", id);
         demandeService.delete(id);
@@ -147,6 +153,7 @@ public class DemandeResource {
      * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
      */
     @PutMapping("/demandes/{id}/equipe/{idEquipe}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DemandeDTO> assignerEquipe(@PathVariable Integer id, @PathVariable Integer idEquipe) {
         log.debug("REST request to assign team {} to demand {}", idEquipe, id);
         DemandeDTO result = demandeService.assignerEquipe(id, idEquipe);
@@ -161,12 +168,12 @@ public class DemandeResource {
      * @param username l'identifiant du collaborateur à assigner
      * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
      */
-    @PutMapping("/demandes/{id}/collaborateur/{username}")
-    public ResponseEntity<DemandeDTO> assignerCollaborateur(@PathVariable Integer id, @PathVariable String username) {
-        log.debug("REST request to assign collaborator {} to demand {}", username, id);
-        DemandeDTO result = demandeService.assignerCollaborateur(id, username);
-        return ResponseEntity.ok().body(result);
-    }
+//    @PutMapping("/demandes/{id}/collaborateur/{username}")
+//    public ResponseEntity<DemandeDTO> assignerCollaborateur(@PathVariable Integer id, @PathVariable String username) {
+//        log.debug("REST request to assign collaborator {} to demand {}", username, id);
+//        DemandeDTO result = demandeService.assignerCollaborateur(id, username);
+//        return ResponseEntity.ok().body(result);
+//    }
 
     /**
      * PUT /demandes/{id}/equipe/{idEquipe}/collaborateur/{username} : Assigne
@@ -178,6 +185,7 @@ public class DemandeResource {
      * @return la ResponseEntity avec statut 200 (OK) et la demande mise à jour
      */
     @PutMapping("/demandes/{id}/equipe/{idEquipe}/collaborateur/{username}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DemandeDTO> assignerEquipeEtCollaborateur(
             @PathVariable Integer id,
             @PathVariable Integer idEquipe,
@@ -188,10 +196,23 @@ public class DemandeResource {
     }
 
     @DeleteMapping("/demandes/{id}/affectation")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DemandeDTO> desaffecterDemande(@PathVariable("id") Integer id) {
         log.debug("REST request to unassign demand {}", id);
         DemandeDTO result = demandeService.desaffecterDemande(id);
         return ResponseEntity.ok().body(result);
+    }
+
+    @PostMapping("/demandes/import")
+    public ResponseEntity<DemandeDTO> importDemande(@RequestParam("file") MultipartFile file)
+            throws URISyntaxException, IOException {
+        log.debug("REST request to import Demande from file");
+
+        DemandeDTO result = demandeService.importFromFile(file);
+
+        return ResponseEntity
+                .created(new URI("/api/demandes/" + result.getIdDemande()))
+                .body(result);
     }
 
 }

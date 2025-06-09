@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 @Configuration
 @EnableWebSecurity
 @Profile({"dev", "test"})
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableRedisHttpSession
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

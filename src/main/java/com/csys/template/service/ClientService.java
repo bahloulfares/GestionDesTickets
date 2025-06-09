@@ -18,97 +18,97 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ClientService {
-  private final Logger log = LoggerFactory.getLogger(ClientService.class);
 
-  private final ClientRepository clientRepository;
+    private final Logger log = LoggerFactory.getLogger(ClientService.class);
 
-  public ClientService(ClientRepository clientRepository) {
-    this.clientRepository=clientRepository;
-  }
+    private final ClientRepository clientRepository;
 
-  /**
-   * Save a clientDTO.
-   *
-   * @param clientDTO
-   * @return the persisted entity
-   */
-  public ClientDTO save(ClientDTO clientDTO) {
-    log.debug("Request to save Client: {}",clientDTO);
-    Client client = ClientFactory.clientDTOToClient(clientDTO);
-    client = clientRepository.save(client);
-    ClientDTO resultDTO = ClientFactory.clientToClientDTO(client);
-    return resultDTO;
-  }
+    public ClientService(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
 
-  /**
-   * Update a clientDTO.
-   *
-   * @param clientDTO
-   * @return the updated entity
-   */
-  public ClientDTO update(ClientDTO clientDTO) {
-    log.debug("Request to update Client: {}",clientDTO);
-    Client inBase= clientRepository.findById(clientDTO.getIdClient()).orElse(null);
-    Preconditions.checkArgument(inBase != null, "client.NotFound");
-    Client client = ClientFactory.clientDTOToClient(clientDTO);
-    client = clientRepository.save(client);
-    ClientDTO resultDTO = ClientFactory.clientToClientDTO(client);
-    return resultDTO;
-  }
+    /**
+     * Save a clientDTO.
+     *
+     * @param clientDTO
+     * @return the persisted entity
+     */
+    public ClientDTO save(ClientDTO clientDTO) {
+        log.debug("Request to save Client: {}", clientDTO);
+        Client client = ClientFactory.clientDTOToClient(clientDTO);
+        client = clientRepository.save(client);
+        ClientDTO resultDTO = ClientFactory.clientToClientDTO(client);
+        return resultDTO;
+    }
 
-  /**
-   * Get one clientDTO by id.
-   *
-   * @param id the id of the entity
-   * @return the entity DTO
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public ClientDTO findOne(Integer id) {
-    log.debug("Request to get Client: {}",id);
-    Client client= clientRepository.findById(id).orElse(null);
-    ClientDTO dto = ClientFactory.clientToClientDTO(client);
-    return dto;
-  }
+    /**
+     * Update a clientDTO.
+     *
+     * @param clientDTO
+     * @return the updated entity
+     */
+    public ClientDTO update(ClientDTO clientDTO) {
+        log.debug("Request to update Client: {}", clientDTO);
+        Client inBase = clientRepository.findById(clientDTO.getIdClient()).orElse(null);
+        Preconditions.checkArgument(inBase != null, "client.NotFound");
+        Client client = ClientFactory.clientDTOToClient(clientDTO);
+        client = clientRepository.save(client);
+        ClientDTO resultDTO = ClientFactory.clientToClientDTO(client);
+        return resultDTO;
+    }
 
-  /**
-   * Get one client by id.
-   *
-   * @param id the id of the entity
-   * @return the entity
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Client findClient(Integer id) {
-    log.debug("Request to get Client: {}",id);
-    Client client= clientRepository.findById(id).orElse(null);
-    return client;
-  }
+    /**
+     * Get one clientDTO by id.
+     *
+     * @param id the id of the entity
+     * @return the entity DTO
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public ClientDTO findOne(Integer id) {
+        log.debug("Request to get Client: {}", id);
+        Client client = clientRepository.findById(id).orElse(null);
+        ClientDTO dto = ClientFactory.clientToClientDTO(client);
+        return dto;
+    }
 
-  /**
-   * Get all the clients.
-   *
-   * @return the the list of entities
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Collection<ClientDTO> findAll() {
-    log.debug("Request to get All Clients");
-    Collection<Client> result= clientRepository.findAll();
-    return ClientFactory.clientToClientDTOs(result);
-  }
+    /**
+     * Get one client by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Client findClient(Integer id) {
+        log.debug("Request to get Client: {}", id);
+        Client client = clientRepository.findById(id).orElse(null);
+        return client;
+    }
 
-  /**
-   * Delete client by id.
-   *
-   * @param id the id of the entity
-   */
-  public void delete(Integer id) {
-    log.debug("Request to delete Client: {}",id);
-    clientRepository.deleteById(id);
-  }
+    /**
+     * Get all the clients.
+     *
+     * @return the the list of entities
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Collection<ClientDTO> findAll() {
+        log.debug("Request to get All Clients");
+        Collection<Client> result = clientRepository.findAll();
+        return ClientFactory.clientToClientDTOs(result);
+    }
+
+    /**
+     * Delete client by id.
+     *
+     * @param id the id of the entity
+     */
+    public void delete(Integer id) {
+        log.debug("Request to delete Client: {}", id);
+        clientRepository.deleteById(id);
+    }
 }
-

@@ -15,11 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 import com.csys.template.domain.Equipe;
 import com.csys.template.domain.User;
 import com.csys.template.domain.enums.EtatDemande;
+import com.csys.template.domain.enums.PrioriteDemande;
 import com.csys.template.repository.EquipeRepository;
 import com.csys.template.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 /**
  * Service Implementation for managing Demande.
  */
@@ -200,43 +209,42 @@ public class DemandeService {
      * @param username l'identifiant du collaborateur à assigner
      * @return la demande mise à jour
      */
-    @Transactional
-    public DemandeDTO assignerCollaborateur(Integer idDemande, String username) {
-        log.debug("Assignation du collaborateur {} à la demande {}", username, idDemande);
-
-        // Récupération de la demande
-        Demande demande = demandeRepository.findById(idDemande)
-                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
-
-        // Récupération du collaborateur
-        User collaborateur = userRepository.findById(username)
-                .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
-
-        // Vérification de l'état de la demande
-        if (demande.getEtat() == EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION || demande.getEtat() == EtatDemande.DEMANDE_CREEE || demande.getEtat() == EtatDemande.DEMANDE_REJETEE || demande.getEtat() == EtatDemande.TERMINEE || demande.getEtat() == EtatDemande.CLOTUREE) {
-            throw new IllegalBusinessLogiqueException("demande.etat.invalid.pour.affectation");
-        }
-
-        // // Vérification que la demande est dans un état valide pour l'affectation
-        // if (demande.getEtat() != EtatDemande.DEMANDE_VALIDEE || demande.getEtat() != EtatDemande.ASSIGNEE || demande.getEtat() != EtatDemande.EN_ATTENTE_INFORMATIONS || demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
-        //     throw new IllegalBusinessLogiqueException("demande.etat.non.valide.pour.affectation");
-        // }
-        // Assignation du collaborateur à la demande
-        demande.setCollaborateur(collaborateur);
-
-        // Mise à jour de la date d'affectation
-        demande.setDateAffectationCollaborateur(LocalDate.now());
-
-        // Mise à jour de l'état de la demande
-        demande.setEtat(EtatDemande.ASSIGNEE);
-
-        // Sauvegarde de la demande
-        demande = demandeRepository.save(demande);
-
-        // Conversion en DTO (dans la même transaction)
-        return DemandeFactory.demandeToDemandeDTO(demande);
-    }
-
+//    @Transactional
+//    public DemandeDTO assignerCollaborateur(Integer idDemande, String username) {
+//        log.debug("Assignation du collaborateur {} à la demande {}", username, idDemande);
+//
+//        // Récupération de la demande
+//        Demande demande = demandeRepository.findById(idDemande)
+//                .orElseThrow(() -> new MyResourceNotFoundException("demande.NotFound"));
+//
+//        // Récupération du collaborateur
+//        User collaborateur = userRepository.findById(username)
+//                .orElseThrow(() -> new MyResourceNotFoundException("user.NotFound"));
+//
+//        // Vérification de l'état de la demande
+//        if (demande.getEtat() == EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION || demande.getEtat() == EtatDemande.DEMANDE_CREEE || demande.getEtat() == EtatDemande.DEMANDE_REJETEE || demande.getEtat() == EtatDemande.TERMINEE || demande.getEtat() == EtatDemande.CLOTUREE) {
+//            throw new IllegalBusinessLogiqueException("demande.etat.invalid.pour.affectation");
+//        }
+//
+//        // // Vérification que la demande est dans un état valide pour l'affectation
+//        // if (demande.getEtat() != EtatDemande.DEMANDE_VALIDEE || demande.getEtat() != EtatDemande.ASSIGNEE || demande.getEtat() != EtatDemande.EN_ATTENTE_INFORMATIONS || demande.getEtat() != EtatDemande.EN_COURS_DE_TRAITEMENT) {
+//        //     throw new IllegalBusinessLogiqueException("demande.etat.non.valide.pour.affectation");
+//        // }
+//        // Assignation du collaborateur à la demande
+//        demande.setCollaborateur(collaborateur);
+//
+//        // Mise à jour de la date d'affectation
+//        demande.setDateAffectationCollaborateur(LocalDate.now());
+//
+//        // Mise à jour de l'état de la demande
+//        demande.setEtat(EtatDemande.ASSIGNEE);
+//
+//        // Sauvegarde de la demande
+//        demande = demandeRepository.save(demande);
+//
+//        // Conversion en DTO (dans la même transaction)
+//        return DemandeFactory.demandeToDemandeDTO(demande);
+//    }
     /**
      * Méthode combinée pour assigner à la fois une équipe et un collaborateur
      * Utile lorsque le collaborateur fait partie de l'équipe assignée
@@ -330,10 +338,65 @@ public class DemandeService {
 
         // Sauvegarde de la demande
         demande = demandeRepository.save(demande);
-
         // Conversion en DTO
         return DemandeFactory.demandeToDemandeDTO(demande);
     }
 
+    public DemandeDTO importFromFile(MultipartFile file) throws IOException {
+        log.debug("Service request to import Demande from file: {}", file.getOriginalFilename());
+        
+        // Ici, vous devez implémenter la logique pour parser le fichier
+        // et extraire les données de la demande selon votre format de fichier
+        // (CSV, JSON, XML, etc.)
+        
+        // Exemple pour un fichier JSON (vous devrez adapter selon votre format)
+        DemandeDTO demandeDTO = parseFileContent(file);
+        
+        // Validation des données importées
+        if (demandeDTO.getClient() == null) {
+            throw new IllegalBusinessLogiqueException("client.NotNull");
+        }
+        if (demandeDTO.getModule() == null) {
+            throw new IllegalBusinessLogiqueException("module.NotNull");
+        }
+        
+        // Définir les valeurs par défaut si nécessaire
+        if (demandeDTO.getEtat() == null) {
+            demandeDTO.setEtat(EtatDemande.DEMANDE_EN_COURS_DE_VALIDATION);
+        }
+        if (demandeDTO.getPriorite() == null) {
+            demandeDTO.setPriorite(PrioriteDemande.NORMALE);
+        }
+        
+        // Sauvegarder la demande importée
+        Demande demande = DemandeFactory.demandeDTOToDemande(demandeDTO);
+        demande = demandeRepository.save(demande);
+        
+        return DemandeFactory.demandeToDemandeDTO(demande);
+    }
 
+    // private DemandeDTO parseFileContent(MultipartFile file) throws IOException {
+    //     // Cette implémentation est un exemple et doit être adaptée à votre format de fichier
+    //     // Vous pourriez utiliser des bibliothèques comme Jackson pour JSON, JAXB pour XML, etc.
+    //     // Exemple simple pour illustration (à adapter selon votre format)
+    //     DemandeDTO demandeDTO = new DemandeDTO();     
+    //     try (BufferedReader reader = new BufferedReader(
+    //             new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+    //         // Logique de parsing du fichier
+    //         // ...           
+    //         // Exemple fictif:
+    //         // String line;
+    //         // while ((line = reader.readLine()) != null) {
+    //         //     // Traiter chaque ligne du fichier
+    //         //     // ...
+    //         // }
+    //     }    
+    //     return demandeDTO;
+    // }
+
+    private DemandeDTO parseFileContent(MultipartFile file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule()); // Pour gérer les dates LocalDate
+        return mapper.readValue(file.getInputStream(), DemandeDTO.class);
+    }
 }

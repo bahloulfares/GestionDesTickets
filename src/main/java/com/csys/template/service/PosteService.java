@@ -17,84 +17,81 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class PosteService {
-  private final Logger log = LoggerFactory.getLogger(PosteService.class);
 
-  private final PosteRepository posteRepository;
+    private final Logger log = LoggerFactory.getLogger(PosteService.class);
 
-  public PosteService(PosteRepository posteRepository) {
-    this.posteRepository=posteRepository;
-  }
+    private final PosteRepository posteRepository;
 
-  /**
-   * Save a posteDTO.
-   *
-   * @param posteDTO
-   * @return the persisted entity
-   */
-  public PosteDTO save(PosteDTO posteDTO) {
-    log.debug("Request to save Poste: {}",posteDTO);
-    Poste poste = PosteFactory.posteDTOToPoste(posteDTO);
-    poste = posteRepository.save(poste);
-    PosteDTO resultDTO = PosteFactory.posteToPosteDTO(poste);
-    return resultDTO;
-  }
+    public PosteService(PosteRepository posteRepository) {
+        this.posteRepository = posteRepository;
+    }
 
-  /**
-   * Update a posteDTO.
-   *
-   * @param posteDTO
-   * @return the updated entity
-   */
-  public PosteDTO update(PosteDTO posteDTO) {
-    log.debug("Request to update Poste: {}",posteDTO);
-    Poste inBase= posteRepository.findById(posteDTO.getIdPoste()).orElse(null);
-    Preconditions.checkArgument(inBase != null, "poste.NotFound");
-    Poste poste = PosteFactory.posteDTOToPoste(posteDTO);
-    poste = posteRepository.save(poste);
-    PosteDTO resultDTO = PosteFactory.posteToPosteDTO(poste);
-    return resultDTO;
-  }
+    /**
+     * Save a posteDTO.
+     *
+     * @param posteDTO
+     * @return the persisted entity
+     */
+    public PosteDTO save(PosteDTO posteDTO) {
+        log.debug("Request to save Poste: {}", posteDTO);
+        Poste poste = PosteFactory.posteDTOToPoste(posteDTO);
+        poste = posteRepository.save(poste);
+        PosteDTO resultDTO = PosteFactory.posteToPosteDTO(poste);
+        return resultDTO;
+    }
 
-  /**
-   * Get one posteDTO by id.
-   *
-   * @param id the id of the entity
-   * @return the entity DTO
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public PosteDTO findOne(Integer id) {
-    log.debug("Request to get Poste: {}",id);
-    Poste poste= posteRepository.findById(id).orElse(null);
-    PosteDTO dto = PosteFactory.posteToPosteDTO(poste);
-    return dto;
-  }
+    /**
+     * Update a posteDTO.
+     *
+     * @param posteDTO
+     * @return the updated entity
+     */
+    public PosteDTO update(PosteDTO posteDTO) {
+        log.debug("Request to update Poste: {}", posteDTO);
+        Poste inBase = posteRepository.findById(posteDTO.getIdPoste()).orElse(null);
+        Preconditions.checkArgument(inBase != null, "poste.NotFound");
+        Poste poste = PosteFactory.posteDTOToPoste(posteDTO);
+        poste = posteRepository.save(poste);
+        PosteDTO resultDTO = PosteFactory.posteToPosteDTO(poste);
+        return resultDTO;
+    }
 
+    /**
+     * Get one posteDTO by id.
+     *
+     * @param id the id of the entity
+     * @return the entity DTO
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public PosteDTO findOne(Integer id) {
+        log.debug("Request to get Poste: {}", id);
+        Poste poste = posteRepository.findById(id).orElse(null);
+        PosteDTO dto = PosteFactory.posteToPosteDTO(poste);
+        return dto;
+    }
 
-  @Transactional(
-      readOnly = true
-  )
-  public Poste findPoste(Integer id) {
-    log.debug("Request to get Poste: {}",id);
-    Poste poste= posteRepository.findById(id).orElse(null);
-    return poste;
-  }
+    @Transactional(
+            readOnly = true
+    )
+    public Poste findPoste(Integer id) {
+        log.debug("Request to get Poste: {}", id);
+        Poste poste = posteRepository.findById(id).orElse(null);
+        return poste;
+    }
 
+    @Transactional(
+            readOnly = true
+    )
+    public Collection<PosteDTO> findAll() {
+        log.debug("Request to get All Postes");
+        Collection<Poste> result = posteRepository.findAll();
+        return PosteFactory.posteToPosteDTOs(result);
+    }
 
-  @Transactional(
-      readOnly = true
-  )
-  public Collection<PosteDTO> findAll() {
-    log.debug("Request to get All Postes");
-    Collection<Poste> result= posteRepository.findAll();
-    return PosteFactory.posteToPosteDTOs(result);
-  }
-
-
-  public void delete(Integer id) {
-    log.debug("Request to delete Poste: {}",id);
-    posteRepository.deleteById(id);
-  }
+    public void delete(Integer id) {
+        log.debug("Request to delete Poste: {}", id);
+        posteRepository.deleteById(id);
+    }
 }
-

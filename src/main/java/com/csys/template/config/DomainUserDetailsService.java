@@ -1,7 +1,9 @@
 package com.csys.template.config;
 
 import com.csys.template.domain.User;
-import com.csys.template.repository.UserRepository;
+import com.csys.template.domain.enums.Role;
+import com.csys.template.service.UserService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -24,10 +26,10 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public DomainUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public DomainUserDetailsService(UserService userService) {
+        this.userService = userService;
     }
 
 
@@ -36,20 +38,26 @@ public class DomainUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         log.error("Authenticating {}", login);
         String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-        Optional<User> userFromDatabase = userRepository
-                .findOneByUsername(lowercaseLogin);
-
+        Optional<User> userFromDatabase = userService.findUserByUsername(lowercaseLogin);
+    
         return userFromDatabase.map(user -> {
             String password = user.getPassword();
             // Vérifier si le mot de passe est déjà crypté
             if (!password.startsWith("{bcrypt}")) {
-                // Si le mot de passe n'est pas encore crypté, on le crypte pour cette session
                 password = "{bcrypt}" + new BCryptPasswordEncoder().encode(password.toLowerCase(Locale.ENGLISH));
             }
+          
+            // Utiliser le rôle de l'utilisateur
+            List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+            if (user.getRole() != null) {
+                grantedAuthorities.add(new SimpleGrantedAuthority(user.getRole().name()));
+                log.debug("Rôle de l'utilisateur : {}", user.getRole().name());
+            } else {
+                // Rôle par défaut si aucun rôle n'est défini
+                grantedAuthorities.add(new SimpleGrantedAuthority(Role.ROLE_AUTRE.name()));
+            }
             
-            List<GrantedAuthority> grantedAuthorities = java.util.Arrays.asList(new SimpleGrantedAuthority("template-core"));
             return new org.springframework.security.core.userdetails.User(lowercaseLogin, password, grantedAuthorities);
-        }).orElseThrow(
-                () -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " + "database"));
+        }).orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
     }
 }

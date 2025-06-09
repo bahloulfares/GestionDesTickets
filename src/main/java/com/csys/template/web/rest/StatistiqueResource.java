@@ -20,15 +20,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class StatistiqueResource {
-    
+
     private final Logger log = LoggerFactory.getLogger(StatistiqueResource.class);
-    
+
     private final StatistiqueService statistiqueService;
-    
+
     public StatistiqueResource(StatistiqueService statistiqueService) {
         this.statistiqueService = statistiqueService;
     }
-    
+
     /**
      * GET /demandes/filter : récupère les demandes selon les filtres spécifiés
      *
@@ -40,16 +40,17 @@ public class StatistiqueResource {
      */
     @GetMapping("/demandes/filter")
     public List<DemandeDTO> getDemandeByFilters(
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationDu, 
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationAu, 
-            @RequestParam(required = false) Integer codeClient, 
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationDu,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationAu,
+            @RequestParam(required = false) Integer codeClient,
             @RequestParam(required = false) Integer codeModule) {
         log.debug("REST request to get filtered demands");
         return statistiqueService.findListDemande(codeModule, codeClient, dateCreationDu, dateCreationAu);
     }
 
     /**
-     * GET /demandes/count : récupère les statistiques des demandes par type pour une période donnée
+     * GET /demandes/count : récupère les statistiques des demandes par type
+     * pour une période donnée
      *
      * @param dateCreationDu Date de début pour la création
      * @param dateCreationAu Date de fin pour la création
@@ -57,7 +58,7 @@ public class StatistiqueResource {
      */
     @GetMapping("/demandes/count")
     public List<StatistiqueDTO> getDemandeByFilters(
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationDu, 
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationDu,
             @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateCreationAu) {
         log.debug("REST request to get demand statistics by type");
         return statistiqueService.calculDemandeByType(dateCreationDu, dateCreationAu);

@@ -2,7 +2,6 @@ package com.csys.template.repository;
 
 import com.csys.template.domain.Demande;
 import com.csys.template.domain.enums.EtatDemande;
-import com.csys.template.domain.enums.PrioriteDemande;
 import java.lang.Integer;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +19,7 @@ public interface DemandeRepository extends JpaRepository<Demande, Integer>, Quer
     List<Demande> findByEtat(EtatDemande etat);
     List<Demande> findByDateCreationBetween(LocalDate dateDebut, LocalDate dateFin);
     
-    // Méthodes nécessaires pour les requêtes WhereClauseBuilder
+//     Méthodes nécessaires pour les requêtes WhereClauseBuilder
     List<Demande> findByClientIdClient(Integer idClient);
     List<Demande> findByModuleIdModule(Integer idModule);
     List<Demande> findByEquipeIdEquipe(Integer idEquipe);

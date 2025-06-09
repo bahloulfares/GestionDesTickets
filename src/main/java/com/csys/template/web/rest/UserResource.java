@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,63 +29,64 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class UserResource {
-  private static final String ENTITY_NAME = "user";
 
-  private final UserService userService;
+    private static final String ENTITY_NAME = "user";
 
-  private final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final UserService userService;
 
-  public UserResource(UserService userService) {
-    this.userService=userService;
-  }
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-  @PostMapping("/users")
-  public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) throws URISyntaxException, MethodArgumentNotValidException {
-    log.debug("REST request to save User : {}", userDTO);
-    if ( userDTO.getUsername() == null ||  userDTO.getUsername().isEmpty() ) {
-      bindingResult.addError( new FieldError("UserDTO","username","POST method does not accepte "+ENTITY_NAME+" without code"));
-      throw new MethodArgumentNotValidException(null, bindingResult);
+    public UserResource(UserService userService) {
+        this.userService = userService;
     }
-    if (bindingResult.hasErrors()) {
-      throw new MethodArgumentNotValidException(null, bindingResult);
+
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) throws URISyntaxException, MethodArgumentNotValidException {
+        log.debug("REST request to save User : {}", userDTO);
+        if (userDTO.getUsername() == null || userDTO.getUsername().isEmpty()) {
+            bindingResult.addError(new FieldError("UserDTO", "username", "POST method does not accepte " + ENTITY_NAME + " without code"));
+            throw new MethodArgumentNotValidException(null, bindingResult);
+        }
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(null, bindingResult);
+        }
+        UserDTO result = userService.save(userDTO);
+        return ResponseEntity.created(new URI("/api/users/" + result.getUsername())).body(result);
     }
-    UserDTO result = userService.save(userDTO);
-    return ResponseEntity.created( new URI("/api/users/"+ result.getUsername())).body(result);
-  }
 
-  @PutMapping("/users")
-  public ResponseEntity<UserDTO> updateUser( @Valid @RequestBody UserDTO userDTO) throws MethodArgumentNotValidException {
-    log.debug("Request to update User: {}");
-    UserDTO result =userService.update(userDTO);
-    return ResponseEntity.ok().body(result);
-  }
+    @PutMapping("/users")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) throws MethodArgumentNotValidException {
+        log.debug("Request to update User: {}");
+        UserDTO result = userService.update(userDTO);
+        return ResponseEntity.ok().body(result);
+    }
 
-  @GetMapping("/users/{id}")
-  public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
-    log.debug("Request to get User: {}",id);
-    UserDTO dto = userService.findOne(id);
-    RestPreconditions.checkFound(dto, "user.NotFound");
-    return ResponseEntity.ok().body(dto);
-  }
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
+        log.debug("Request to get User: {}", id);
+        UserDTO dto = userService.findOne(id);
+        RestPreconditions.checkFound(dto, "user.NotFound");
+        return ResponseEntity.ok().body(dto);
+    }
 
+    @GetMapping("/users")
+    public Collection<UserDTO> getAllUsers() {
+        log.debug("Request to get all  Users : {}");
+        return userService.findAll();
+    }
 
-  @GetMapping("/users")
-  public Collection<UserDTO> getAllUsers() {
-    log.debug("Request to get all  Users : {}");
-    return userService.findAll();
-  }
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        log.debug("Request to delete User: {}", id);
+        userService.delete(id);
+        return ResponseEntity.ok().build();
+    }
 
-
-  @DeleteMapping("/users/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-    log.debug("Request to delete User: {}",id);
-    userService.delete(id);
-    return ResponseEntity.ok().build();
-  }
-
-  @GetMapping("/users/is-authenticated")
-  public UserDTO isAuthenticated() {
-    return userService.findUser();
-  }
+    @GetMapping("/users/is-authenticated")
+    public UserDTO isAuthenticated() {
+        return userService.findUser();
+    }
 }
-

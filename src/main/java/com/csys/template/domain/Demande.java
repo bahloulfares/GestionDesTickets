@@ -54,60 +54,38 @@ public class Demande implements Serializable {
     private LocalDate dateEcheance;
 
     @Size(max = 1000)
-    @Column(name = "commentaire") // Remove nullable = false since it's not marked @NotNull
+    @Column(name = "commentaire")
     private String commentaire;
 
     @NotNull
     @ManyToOne(optional = false)
-    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idClient", referencedColumnName = "id_client", nullable = false)
     private Client client;
 
-    // @ManyToOne(optional = false)
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idEquipe", referencedColumnName = "id_equipe")
     private Equipe equipe;
 
     @NotNull
     @ManyToOne(optional = false)
-    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idModule", referencedColumnName = "id_module", nullable = false)
     private Module module;
 
     @ManyToOne(optional = false)
-    // @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "username", referencedColumnName = "username", nullable = false, insertable = false, updatable = false)
     private User createur;
 
     
     private String username;
-    // @ManyToOne(optional = false)
+
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "idCollaborateur", referencedColumnName = "username")
     private User collaborateur;
     
-    //private String dernierModificateur;
-
     @PrePersist
     public void prePersist() {
         this.dateCreation = LocalDate.now();
         this.username = SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        // S'assurer que username n'est jamais null lors d'une mise à jour
-        // if (this.username == null) {
-        //     this.username = SecurityContextHolder.getContext().getAuthentication().getName();
-        // }
-        
-        // Toujours mettre à jour le dernier modificateur lors d'une modification
-        //this.dernierModificateur = SecurityContextHolder.getContext().getAuthentication().getName();
-        
-        // S'assurer que dateCreation n'est jamais null lors d'une mise à jour
-//        if (this.dateCreation == null) {
-//            this.dateCreation = LocalDate.now();
-//        }
     }
 
     // === Constructeurs ===
@@ -246,26 +224,12 @@ public class Demande implements Serializable {
         this.username = username;
     }
 
-//    public String getDernierModificateur() {
-//        return dernierModificateur;
-//    }
-//
-//    public void setDernierModificateur(String dernierModificateur) {
-//        this.dernierModificateur = dernierModificateur;
-//    }
-
     // === Méthodes utilitaires ===
     @Override
     public int hashCode() {
         return idDemande != null ? idDemande.hashCode() : 0;
     }
 
-    // @Override
-    // public boolean equals(Object obj) {
-    // if (!(obj instanceof Demande)) return false;
-    // Demande other = (Demande) obj;
-    // return this.idDemande != null && this.idDemande.equals(other.idDemande);
-    // }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

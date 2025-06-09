@@ -18,97 +18,97 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ModuleService {
-  private final Logger log = LoggerFactory.getLogger(ModuleService.class);
 
-  private final ModuleRepository moduleRepository;
+    private final Logger log = LoggerFactory.getLogger(ModuleService.class);
 
-  public ModuleService(ModuleRepository moduleRepository) {
-    this.moduleRepository=moduleRepository;
-  }
+    private final ModuleRepository moduleRepository;
 
-  /**
-   * Save a moduleDTO.
-   *
-   * @param moduleDTO
-   * @return the persisted entity
-   */
-  public ModuleDTO save(ModuleDTO moduleDTO) {
-    log.debug("Request to save Module: {}",moduleDTO);
-    Module module = ModuleFactory.moduleDTOToModule(moduleDTO);
-    module = moduleRepository.save(module);
-    ModuleDTO resultDTO = ModuleFactory.moduleToModuleDTO(module);
-    return resultDTO;
-  }
+    public ModuleService(ModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
+    }
 
-  /**
-   * Update a moduleDTO.
-   *
-   * @param moduleDTO
-   * @return the updated entity
-   */
-  public ModuleDTO update(ModuleDTO moduleDTO) {
-    log.debug("Request to update Module: {}",moduleDTO);
-    Module inBase= moduleRepository.findById(moduleDTO.getIdModule()).orElse(null);
-    Preconditions.checkArgument(inBase != null, "module.NotFound");
-    Module module = ModuleFactory.moduleDTOToModule(moduleDTO);
-    module = moduleRepository.save(module);
-    ModuleDTO resultDTO = ModuleFactory.moduleToModuleDTO(module);
-    return resultDTO;
-  }
+    /**
+     * Save a moduleDTO.
+     *
+     * @param moduleDTO
+     * @return the persisted entity
+     */
+    public ModuleDTO save(ModuleDTO moduleDTO) {
+        log.debug("Request to save Module: {}", moduleDTO);
+        Module module = ModuleFactory.moduleDTOToModule(moduleDTO);
+        module = moduleRepository.save(module);
+        ModuleDTO resultDTO = ModuleFactory.moduleToModuleDTO(module);
+        return resultDTO;
+    }
 
-  /**
-   * Get one moduleDTO by id.
-   *
-   * @param id the id of the entity
-   * @return the entity DTO
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public ModuleDTO findOne(Integer id) {
-    log.debug("Request to get Module: {}",id);
-    Module module= moduleRepository.findById(id).orElse(null);
-    ModuleDTO dto = ModuleFactory.moduleToModuleDTO(module);
-    return dto;
-  }
+    /**
+     * Update a moduleDTO.
+     *
+     * @param moduleDTO
+     * @return the updated entity
+     */
+    public ModuleDTO update(ModuleDTO moduleDTO) {
+        log.debug("Request to update Module: {}", moduleDTO);
+        Module inBase = moduleRepository.findById(moduleDTO.getIdModule()).orElse(null);
+        Preconditions.checkArgument(inBase != null, "module.NotFound");
+        Module module = ModuleFactory.moduleDTOToModule(moduleDTO);
+        module = moduleRepository.save(module);
+        ModuleDTO resultDTO = ModuleFactory.moduleToModuleDTO(module);
+        return resultDTO;
+    }
 
-  /**
-   * Get one module by id.
-   *
-   * @param id the id of the entity
-   * @return the entity
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Module findModule(Integer id) {
-    log.debug("Request to get Module: {}",id);
-    Module module= moduleRepository.findById(id).orElse(null);
-    return module;
-  }
+    /**
+     * Get one moduleDTO by id.
+     *
+     * @param id the id of the entity
+     * @return the entity DTO
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public ModuleDTO findOne(Integer id) {
+        log.debug("Request to get Module: {}", id);
+        Module module = moduleRepository.findById(id).orElse(null);
+        ModuleDTO dto = ModuleFactory.moduleToModuleDTO(module);
+        return dto;
+    }
 
-  /**
-   * Get all the modules.
-   *
-   * @return the the list of entities
-   */
-  @Transactional(
-      readOnly = true
-  )
-  public Collection<ModuleDTO> findAll() {
-    log.debug("Request to get All Modules");
-    Collection<Module> result= moduleRepository.findAll();
-    return ModuleFactory.moduleToModuleDTOs(result);
-  }
+    /**
+     * Get one module by id.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Module findModule(Integer id) {
+        log.debug("Request to get Module: {}", id);
+        Module module = moduleRepository.findById(id).orElse(null);
+        return module;
+    }
 
-  /**
-   * Delete module by id.
-   *
-   * @param id the id of the entity
-   */
-  public void delete(Integer id) {
-    log.debug("Request to delete Module: {}",id);
-    moduleRepository.deleteById(id);
-  }
+    /**
+     * Get all the modules.
+     *
+     * @return the the list of entities
+     */
+    @Transactional(
+            readOnly = true
+    )
+    public Collection<ModuleDTO> findAll() {
+        log.debug("Request to get All Modules");
+        Collection<Module> result = moduleRepository.findAll();
+        return ModuleFactory.moduleToModuleDTOs(result);
+    }
+
+    /**
+     * Delete module by id.
+     *
+     * @param id the id of the entity
+     */
+    public void delete(Integer id) {
+        log.debug("Request to delete Module: {}", id);
+        moduleRepository.deleteById(id);
+    }
 }
-
