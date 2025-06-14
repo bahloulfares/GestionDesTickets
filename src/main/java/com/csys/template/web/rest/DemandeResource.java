@@ -203,6 +203,7 @@ public class DemandeResource {
         return ResponseEntity.ok().body(result);
     }
 
+    //endpoint d'importation des demandes depuis un fichier json
     @PostMapping("/demandes/import")
     public ResponseEntity<DemandeDTO> importDemande(@RequestParam("file") MultipartFile file)
             throws URISyntaxException, IOException {

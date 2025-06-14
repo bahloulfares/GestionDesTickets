@@ -374,26 +374,6 @@ public class DemandeService {
         
         return DemandeFactory.demandeToDemandeDTO(demande);
     }
-
-    // private DemandeDTO parseFileContent(MultipartFile file) throws IOException {
-    //     // Cette implémentation est un exemple et doit être adaptée à votre format de fichier
-    //     // Vous pourriez utiliser des bibliothèques comme Jackson pour JSON, JAXB pour XML, etc.
-    //     // Exemple simple pour illustration (à adapter selon votre format)
-    //     DemandeDTO demandeDTO = new DemandeDTO();     
-    //     try (BufferedReader reader = new BufferedReader(
-    //             new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-    //         // Logique de parsing du fichier
-    //         // ...           
-    //         // Exemple fictif:
-    //         // String line;
-    //         // while ((line = reader.readLine()) != null) {
-    //         //     // Traiter chaque ligne du fichier
-    //         //     // ...
-    //         // }
-    //     }    
-    //     return demandeDTO;
-    // }
-
     private DemandeDTO parseFileContent(MultipartFile file) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule()); // Pour gérer les dates LocalDate
